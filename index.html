@@ -3,310 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Move Out Inspection - AG Management</title>
+    <title>Move Out Inspection</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; max-width: 1400px; margin: 0 auto; }
-        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .header h1 { color: #333; margin-bottom: 10px; }
-        .header p { color: #666; margin: 5px 0; }
-        .gps-box { background: #e8f4f8; padding: 15px; border-radius: 4px; margin-bottom: 20px; border-left: 4px solid #007bff; }
-        .basic-info { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        body { font-family: Arial; padding: 20px; background: #f5f5f5; max-width: 1400px; margin: 0 auto; }
+        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; }
+        .gps { background: #e8f4f8; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+        .info { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
         .section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #333; }
-        .section-header h3 { color: #333; }
-        .remove-btn { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
-        .item-card { background: #f9f9f9; padding: 15px; margin-bottom: 15px; border-radius: 4px; border-left: 4px solid #007bff; }
-        .item-name { font-weight: bold; color: #333; margin-bottom: 10px; font-size: 16px; }
-        .item-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .item-grid select, .item-grid input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .photo-btn { background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin: 10px 0; }
+        .sec-head { display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #333; }
+        .item { background: #f9f9f9; padding: 15px; margin-bottom: 15px; border-radius: 4px; border-left: 4px solid #007bff; }
+        .item-name { font-weight: bold; margin-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .grid select, .grid input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; color: white; margin: 5px; }
+        .btn-add { background: #28a745; }
+        .btn-photo { background: #007bff; padding: 8px 15px; }
+        .btn-remove { background: #dc3545; }
         .photos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
         .photo { position: relative; width: 100px; height: 100px; }
         .photo img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
         .photo button { position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; }
-        .add-btns { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .add-btn { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
-        .action-btns { display: flex; gap: 10px; }
-        .action-btns button { flex: 1; padding: 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; color: white; }
-        .export { background: #28a745; }
-        .submit { background: #007bff; }
-        .legend { background: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-        video { max-width: 400px; display: none; }
+        .actions { display: flex; gap: 10px; }
+        .actions button { flex: 1; padding: 15px; font-size: 16px; font-weight: bold; }
+        video { display: none; max-width: 400px; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <h1>Move Out Inspection</h1>
-                <p>Tenant@335.Rent</p>
-                <p>AG Management</p>
-                <p>2985 12 Mile Berkley MI, 48073</p>
-                <p>(248)335-7368</p>
-            </div>
-            <div>
-                <svg width="120" height="120" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Circle with house icon -->
-                    <circle cx="100" cy="70" r="45" fill="none" stroke="#8B7355" stroke-width="3"/>
-                    <!-- House roof -->
-                    <path d="M 100 45 L 85 60 L 115 60 Z" fill="#8B7355"/>
-                    <!-- House body -->
-                    <rect x="85" y="60" width="30" height="25" fill="none" stroke="#8B7355" stroke-width="2"/>
-                    <!-- Door -->
-                    <rect x="95" y="70" width="10" height="15" fill="#8B7355"/>
-                    <!-- Hash symbol -->
-                    <text x="100" y="78" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">#</text>
-                    <!-- Avenue Group Text -->
-                    <text x="100" y="135" font-family="Arial" font-size="16" font-weight="bold" fill="#333" text-anchor="middle" letter-spacing="2">AVENUE GROUP</text>
-                    <!-- Real Estate Text -->
-                    <text x="100" y="155" font-family="Arial" font-size="10" fill="#666" text-anchor="middle" letter-spacing="3">REAL ESTATE</text>
-                    <!-- Decorative line -->
-                    <line x1="60" y1="145" x2="90" y2="145" stroke="#8B7355" stroke-width="1"/>
-                    <line x1="110" y1="145" x2="140" y2="145" stroke="#8B7355" stroke-width="1"/>
-                </svg>
-            </div>
+        <div>
+            <h1>Move Out Inspection</h1>
+            <p>AG Management</p>
+            <p>2985 12 Mile Berkley MI, 48073</p>
+            <p>(248)335-7368</p>
         </div>
+        <svg width="100" height="100" viewBox="0 0 200 200">
+            <circle cx="100" cy="70" r="45" fill="none" stroke="#8B7355" stroke-width="3"/>
+            <path d="M 100 45 L 85 60 L 115 60 Z" fill="#8B7355"/>
+            <rect x="85" y="60" width="30" height="25" fill="none" stroke="#8B7355" stroke-width="2"/>
+            <rect x="95" y="70" width="10" height="15" fill="#8B7355"/>
+            <text x="100" y="135" font-size="14" fill="#333" text-anchor="middle">AVENUE GROUP</text>
+        </svg>
     </div>
 
-    <div class="gps-box">
-        <strong>📍 GPS & Time:</strong><br>
-        <span id="gps">Detecting...</span><br>
-        <span id="time">--</span>
+    <div class="gps">
+        <strong>📍 GPS:</strong> <span id="gps">Detecting...</span><br>
+        <strong>⏰ Time:</strong> <span id="time">--</span>
     </div>
 
-    <div class="basic-info">
-        <h2>Inspection Information</h2>
-        <div class="form-group">
+    <div class="info">
+        <h2>Information</h2>
+        <div class="group">
             <label>Property *</label>
-            <input type="text" id="property" required>
+            <input type="text" id="prop">
         </div>
-        <div class="form-group">
-            <label>Tenant(s) *</label>
-            <input type="text" id="tenant" required>
+        <div class="group">
+            <label>Tenant *</label>
+            <input type="text" id="tenant">
         </div>
-        <div class="form-group">
+        <div class="group">
             <label>Inspector *</label>
-            <input type="text" id="inspector" required>
+            <input type="text" id="insp">
         </div>
-        <div class="form-group">
+        <div class="group">
             <label>Date *</label>
-            <input type="date" id="date" required>
+            <input type="date" id="date">
         </div>
     </div>
 
-    <div class="legend">
-        <div><strong>S:</strong> Satisfactory</div>
-        <div><strong>D:</strong> Damaged</div>
-        <div><strong>N:</strong> New</div>
-        <div><strong>E:</strong> Excellent</div>
-        <div><strong>F:</strong> Fair</div>
-        <div><strong>P:</strong> Poor</div>
-    </div>
+    <div id="secs"></div>
 
-    <div id="sections"></div>
-
-    <div class="add-btns">
+    <div class="info">
         <h3>Add Sections</h3>
-        <button class="add-btn" onclick="add('Bedrooms')">Bedrooms</button>
-        <button class="add-btn" onclick="add('Bathrooms')">Bathrooms</button>
-        <button class="add-btn" onclick="add('Kitchen')">Kitchen</button>
-        <button class="add-btn" onclick="add('Living Room')">Living Room</button>
-        <button class="add-btn" onclick="add('Dining Room')">Dining Room</button>
-        <button class="add-btn" onclick="add('Family Room')">Family Room</button>
-        <button class="add-btn" onclick="add('Hallway/Stairs')">Hallway/Stairs</button>
-        <button class="add-btn" onclick="add('Basement')">Basement</button>
-        <button class="add-btn" onclick="add('Laundry Room')">Laundry</button>
-        <button class="add-btn" onclick="add('Front Yard')">Front Yard</button>
-        <button class="add-btn" onclick="add('Back Yard')">Back Yard</button>
-        <button class="add-btn" onclick="add('Entry')">Entry</button>
-        <button class="add-btn" onclick="add('Systems')">Systems</button>
-        <button class="add-btn" onclick="add('Garage')">Garage</button>
+        <button class="btn btn-add" onclick="add('Bedrooms')">Bedrooms</button>
+        <button class="btn btn-add" onclick="add('Bathrooms')">Bathrooms</button>
+        <button class="btn btn-add" onclick="add('Kitchen')">Kitchen</button>
+        <button class="btn btn-add" onclick="add('Living Room')">Living Room</button>
+        <button class="btn btn-add" onclick="add('Laundry')">Laundry</button>
+        <button class="btn btn-add" onclick="add('Systems')">Systems</button>
     </div>
 
-    <div class="basic-info">
-        <div class="form-group">
+    <div class="info">
+        <div class="group">
             <label>Additional Comments</label>
-            <textarea id="additional" rows="3"></textarea>
+            <textarea id="add" rows="3"></textarea>
         </div>
-        <div class="form-group">
+        <div class="group">
             <label>Final Comments</label>
-            <textarea id="final" rows="3"></textarea>
+            <textarea id="fin" rows="3"></textarea>
         </div>
     </div>
 
-    <div class="action-btns">
-        <button class="export" onclick="exportExcel()">📊 Download Excel</button>
-        <button class="submit" onclick="submit()">📧 Complete & Email</button>
+    <div class="actions">
+        <button class="btn btn-remove" onclick="getPDF()">📄 PDF</button>
+        <button class="btn btn-add" onclick="getXLS()">📊 Excel</button>
+        <button class="btn btn-photo" onclick="submit()">📧 Email Both</button>
     </div>
 
-    <video id="video"></video>
-    <canvas id="canvas" class="hidden"></canvas>
+    <video id="v"></video>
+    <canvas id="c" class="hidden"></canvas>
 
     <script>
-        let sec = 0, loc = null, start = new Date();
-        const temps = {
-            'Bedrooms': ['Closet', 'Door/Knob', 'Flooring', 'Light Fixture', 'Switch/Outlet', 'Wall/Ceiling', 'Window'],
-            'Bathrooms': ['Cabinet', 'Door', 'Fan', 'Flooring', 'Light', 'Mirror', 'Shower', 'Sink', 'Toilet', 'Tub'],
-            'Kitchen': ['Cabinets', 'Counter', 'Dishwasher', 'Faucet', 'Flooring', 'Light', 'Oven', 'Range', 'Refrigerator', 'Sink'],
-            'Living Room': ['Flooring', 'Light', 'Switch/Outlet', 'Wall/Ceiling', 'Window'],
-            'Dining Room': ['Flooring', 'Light', 'Switch/Outlet', 'Wall/Ceiling', 'Window'],
-            'Family Room': ['Flooring', 'Light', 'Switch/Outlet', 'Wall/Ceiling', 'Window'],
-            'Hallway/Stairs': ['Closet', 'Flooring', 'Light', 'Railing', 'Smoke Detector', 'Wall/Ceiling'],
-            'Basement': ['Door', 'Flooring', 'Light', 'Smoke Detector', 'Wall/Ceiling', 'Window'],
-            'Laundry Room': ['Cabinet', 'Dryer', 'Faucet', 'Flooring', 'Light', 'Washer'],
-            'Front Yard': ['Building Exterior', 'Landscaping', 'Mailbox', 'Porch/Stairs', 'Walkway'],
-            'Back Yard': ['Building Exterior', 'Fence/Gate', 'Landscaping'],
-            'Entry': ['Door/Knob/Lock', 'Switch/Outlet', 'Wall/Ceiling'],
-            'Systems': ['Breaker Box', 'Furnace', 'Furnace Filter', 'Thermostat', 'Water Heater'],
-            'Garage': ['Door', 'Flooring', 'Light', 'Wall/Ceiling']
+        let n=0, loc=null, start=new Date();
+        const tmp = {
+            'Bedrooms': ['Closet', 'Door', 'Flooring', 'Light', 'Window'],
+            'Bathrooms': ['Cabinet', 'Door', 'Flooring', 'Light', 'Shower', 'Sink', 'Toilet'],
+            'Kitchen': ['Cabinets', 'Counter', 'Faucet', 'Flooring', 'Oven', 'Refrigerator'],
+            'Living Room': ['Flooring', 'Light', 'Wall', 'Window'],
+            'Laundry': ['Dryer', 'Flooring', 'Washer'],
+            'Systems': ['Breaker', 'Furnace', 'Water Heater']
         };
 
-        if (navigator.geolocation) {
+        emailjs.init("YOUR_PUBLIC_KEY");
+
+        if(navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(p => {
-                loc = {lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy};
-                document.getElementById('gps').innerHTML = `${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)} (±${loc.acc.toFixed(0)}m)`;
+                loc = {lat:p.coords.latitude, lng:p.coords.longitude};
+                document.getElementById('gps').textContent = `${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)}`;
             });
         }
 
         setInterval(() => {
-            document.getElementById('time').innerHTML = `Now: ${new Date().toLocaleString()} | Started: ${start.toLocaleString()}`;
+            document.getElementById('time').textContent = new Date().toLocaleString();
         }, 1000);
 
         function add(name) {
-            sec++;
-            const id = `s${sec}`;
-            const items = (temps[name] || ['Item']).map((it, i) => `
-                <div class="item-card" id="${id}i${i}">
+            n++;
+            const id = `s${n}`;
+            const items = (tmp[name]||['Item']).map((it,i) => `
+                <div class="item" id="${id}i${i}">
                     <div class="item-name">${it}</div>
-                    <div class="item-grid">
-                        <select data-f="cond">
-                            <option value=""></option>
-                            <option value="S">S</option>
-                            <option value="D">D</option>
-                            <option value="N">N</option>
-                            <option value="E">E</option>
-                            <option value="F">F</option>
-                            <option value="P">P</option>
-                        </select>
-                        <input data-f="act" placeholder="Actions">
-                        <input data-f="cost" placeholder="Cost">
+                    <div class="grid">
+                        <div>
+                            <label style="font-size: 12px; margin-bottom: 3px;">Condition</label>
+                            <select data-f="c">
+                                <option value=""></option>
+                                <option value="N">N - New</option>
+                                <option value="E">E - Excellent</option>
+                                <option value="S">S - Satisfactory</option>
+                                <option value="F">F - Fair</option>
+                                <option value="P">P - Poor</option>
+                                <option value="!">! - Action</option>
+                                <option value="D">D - Damaged</option>
+                                <option value="TD">TD - Tenant Damaged</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; margin-bottom: 3px;">Action</label>
+                            <select data-f="a">
+                                <option value="None">None</option>
+                                <option value="Repair">Repair</option>
+                                <option value="Replace">Replace</option>
+                                <option value="Update">Update</option>
+                                <option value="Clean">Clean</option>
+                            </select>
+                        </div>
                     </div>
-                    <textarea data-f="comm" placeholder="Comment" rows="2"></textarea>
-                    <button class="photo-btn" onclick="photo('${id}i${i}')">📷 Take Photo</button>
+                    <textarea data-f="m" placeholder="Comment" rows="2"></textarea>
+                    <button class="btn btn-photo" onclick="pic('${id}i${i}')">📷 Photo</button>
                     <div class="photos" id="${id}i${i}p"></div>
                 </div>
             `).join('');
 
-            document.getElementById('sections').insertAdjacentHTML('beforeend', `
+            document.getElementById('secs').insertAdjacentHTML('beforeend', `
                 <div class="section" id="${id}">
-                    <div class="section-header">
+                    <div class="sec-head">
                         <h3>${name}</h3>
-                        <button class="remove-btn" onclick="document.getElementById('${id}').remove()">Remove</button>
+                        <button class="btn btn-remove" onclick="rm('${id}')">Remove</button>
                     </div>
                     ${items}
                 </div>
             `);
         }
 
-        async function photo(id) {
-            const v = document.getElementById('video');
-            const c = document.getElementById('canvas');
+        function rm(id) { document.getElementById(id).remove(); }
+
+        async function pic(id) {
+            const v = document.getElementById('v');
+            const c = document.getElementById('c');
             try {
-                const s = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}});
+                const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
                 v.srcObject = s;
                 v.style.display = 'block';
                 await v.play();
                 setTimeout(() => {
                     c.width = v.videoWidth;
                     c.height = v.videoHeight;
-                    c.getContext('2d').drawImage(v, 0, 0);
-                    const img = c.toDataURL('image/jpeg', 0.8);
+                    c.getContext('2d').drawImage(v,0,0);
+                    const img = c.toDataURL('image/jpeg',0.8);
                     const pid = `p${Date.now()}`;
-                    document.getElementById(`${id}p`).insertAdjacentHTML('beforeend', `
+                    document.getElementById(`${id}p`).insertAdjacentHTML('beforeend',`
                         <div class="photo" id="${pid}">
                             <img src="${img}">
-                            <button onclick="document.getElementById('${pid}').remove()">×</button>
+                            <button onclick="rm('${pid}')">×</button>
                         </div>
                     `);
-                    s.getTracks().forEach(t => t.stop());
-                    v.style.display = 'none';
-                }, 2000);
-            } catch(e) {
-                alert('Camera error');
-            }
+                    s.getTracks().forEach(t=>t.stop());
+                    v.style.display='none';
+                },2000);
+            } catch(e) { alert('Camera error'); }
         }
 
         function getData() {
             return {
-                property: document.getElementById('property').value,
+                property: document.getElementById('prop').value,
                 tenant: document.getElementById('tenant').value,
-                inspector: document.getElementById('inspector').value,
+                inspector: document.getElementById('insp').value,
                 date: document.getElementById('date').value,
                 location: loc,
-                started: start.toLocaleString(),
-                completed: new Date().toLocaleString(),
                 sections: Array.from(document.querySelectorAll('.section')).map(s => ({
                     area: s.querySelector('h3').textContent,
-                    items: Array.from(s.querySelectorAll('.item-card')).map(c => ({
+                    items: Array.from(s.querySelectorAll('.item')).map(c => ({
                         detail: c.querySelector('.item-name').textContent,
-                        condition: c.querySelector('[data-f="cond"]').value,
-                        actions: c.querySelector('[data-f="act"]').value || 'None',
-                        cost: c.querySelector('[data-f="cost"]').value,
-                        comment: c.querySelector('[data-f="comm"]').value,
-                        photos: c.querySelectorAll('.photo').length
+                        condition: c.querySelector('[data-f="c"]').value,
+                        actions: c.querySelector('[data-f="a"]').value||'None',
+                        comment: c.querySelector('[data-f="m"]').value,
+                        photos: Array.from(c.querySelectorAll('.photo img')).map(i=>i.src)
                     }))
                 })),
-                additional: document.getElementById('additional').value,
-                final: document.getElementById('final').value
+                additional: document.getElementById('add').value,
+                final: document.getElementById('fin').value
             };
         }
 
-        function exportExcel() {
-            if (!document.getElementById('property').value) return alert('Fill property address');
+        async function getPDF() {
+            if(!document.getElementById('prop').value) return alert('Fill property');
             const d = getData();
-            
-            // Create logo as base64 for Excel
-            const logoSvg = `<svg width="120" height="120" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="100" cy="70" r="45" fill="none" stroke="#8B7355" stroke-width="3"/>
-                <path d="M 100 45 L 85 60 L 115 60 Z" fill="#8B7355"/>
-                <rect x="85" y="60" width="30" height="25" fill="none" stroke="#8B7355" stroke-width="2"/>
-                <rect x="95" y="70" width="10" height="15" fill="#8B7355"/>
-                <text x="100" y="78" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">#</text>
-                <text x="100" y="135" font-family="Arial" font-size="16" font-weight="bold" fill="#333" text-anchor="middle" letter-spacing="2">AVENUE GROUP</text>
-                <text x="100" y="155" font-family="Arial" font-size="10" fill="#666" text-anchor="middle" letter-spacing="3">REAL ESTATE</text>
-                <line x1="60" y1="145" x2="90" y2="145" stroke="#8B7355" stroke-width="1"/>
-                <line x1="110" y1="145" x2="140" y2="145" stroke="#8B7355" stroke-width="1"/>
-            </svg>`;
-            
+            const {jsPDF} = window.jspdf;
+            const pdf = new jsPDF();
+            let y = 20;
+
+            pdf.setFontSize(18);
+            pdf.text('Move Out Inspection', 105, y, {align:'center'});
+            y += 10;
+            pdf.setFontSize(10);
+            pdf.text('AG Management - Avenue Group', 105, y, {align:'center'});
+            y += 15;
+
+            pdf.setFontSize(12);
+            pdf.text(`Property: ${d.property}`, 20, y); y+=7;
+            pdf.text(`Tenant: ${d.tenant}`, 20, y); y+=7;
+            pdf.text(`Inspector: ${d.inspector}`, 20, y); y+=7;
+            pdf.text(`Date: ${d.date}`, 20, y); y+=10;
+
+            for(const sec of d.sections) {
+                if(y>250) { pdf.addPage(); y=20; }
+                pdf.setFontSize(14);
+                pdf.text(sec.area, 20, y); y+=8;
+
+                for(const item of sec.items) {
+                    if(y>260) { pdf.addPage(); y=20; }
+                    pdf.setFontSize(11);
+                    pdf.text(item.detail, 25, y); y+=6;
+                    pdf.setFontSize(10);
+                    pdf.text(`${item.condition||'-'} | ${item.actions}`, 30, y); y+=5;
+                    if(item.comment) {
+                        const lines = pdf.splitTextToSize(item.comment, 160);
+                        pdf.text(lines, 30, y);
+                        y += lines.length*5;
+                    }
+                    if(item.photos && item.photos.length>0) {
+                        for(const p of item.photos) {
+                            if(y>220) { pdf.addPage(); y=20; }
+                            try { pdf.addImage(p,'JPEG',30,y,40,40); y+=45; } catch(e) {}
+                        }
+                    }
+                    y+=5;
+                }
+            }
+
+            pdf.save(`MoveOut_${d.property.replace(/\s/g,'_')}.pdf`);
+        }
+
+        function getXLS() {
+            if(!document.getElementById('prop').value) return alert('Fill property');
+            const d = getData();
             const rows = [
-                ['Move Out Inspection Report'],
-                ['AG Management - Avenue Group Real Estate'],
-                [],
+                ['Move Out Inspection'],
                 ['Property:', d.property],
                 ['Tenant:', d.tenant],
                 ['Inspector:', d.inspector],
                 ['Date:', d.date],
-                ['Started:', d.started],
-                ['Completed:', d.completed],
                 []
             ];
-            if (d.location) rows.push(['GPS:', `${d.location.lat.toFixed(6)}, ${d.location.lng.toFixed(6)}`], []);
-            
+
             d.sections.forEach(s => {
                 rows.push([s.area]);
-                rows.push(['Detail', 'Condition', 'Actions', 'Cost', 'Comment', 'Photos']);
-                s.items.forEach(i => rows.push([i.detail, i.condition, i.actions, i.cost, i.comment, i.photos]));
+                rows.push(['Detail','Condition','Actions','Comment','Photos']);
+                s.items.forEach(i => rows.push([i.detail,i.condition,i.actions,i.comment,i.photos.length]));
                 rows.push([]);
             });
-            
-            if (d.additional) rows.push(['Additional Comments:', d.additional], []);
-            if (d.final) rows.push(['Final Comments:', d.final], []);
 
             const ws = XLSX.utils.aoa_to_sheet(rows);
             const wb = XLSX.utils.book_new();
@@ -315,13 +308,21 @@
         }
 
         function submit() {
-            if (!document.getElementById('property').value) return alert('Fill required fields');
-            alert('Email requires backend. Downloading Excel...');
-            exportExcel();
+            if(!document.getElementById('prop').value) return alert('Fill required fields');
+            getPDF();
+            getXLS();
+            const d = getData();
+            emailjs.send('YOUR_SERVICE_ID','YOUR_TEMPLATE_ID',{
+                to_email: 'Jay@avenuegroup.re',
+                property: d.property,
+                tenant: d.tenant,
+                message: 'PDF and Excel generated'
+            }).then(() => alert('✅ Files downloaded and email sent!'))
+            .catch(() => alert('Files downloaded. Manually send to Jay@avenuegroup.re'));
         }
 
         window.onload = () => {
-            document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('date').value = new Date().toISOString().slice(0,10);
         };
     </script>
 </body>
