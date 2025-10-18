@@ -1206,41 +1206,126 @@
             }
         }
 
-        // Email Function
-        async function emailReport() {
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('loading').classList.remove('hidden');
+        // Email Function - Sends to N8N
+async function emailReport() {
+    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('loading').classList.remove('hidden');
 
-            try {
-                const propertyAddress = document.getElementById('propertyAddress').value;
-                const tenantName = document.getElementById('tenantName').value;
-                const inspectorName = document.getElementById('inspectorName').value;
+    try {
+        const propertyAddress = document.getElementById('propertyAddress').value;
+        const tenantName = document.getElementById('tenantName').value;
+        const inspectorName = document.getElementById('inspectorName').value;
+        const inspectionDate = document.getElementById('inspectionDate').textContent;
+        const inspectionTime = document.getElementById('inspectionTime').textContent;
+        const gpsLocation = document.getElementById('gpsCoords').textContent;
 
-                const templateParams = {
-                    property_address: propertyAddress,
-                    tenant_name: tenantName,
-                    inspector_name: inspectorName,
-                    inspection_date: document.getElementById('inspectionDate').textContent,
-                    inspection_time: document.getElementById('inspectionTime').textContent,
-                    gps_location: document.getElementById('gpsCoords').textContent,
-                    to_email: 'Jay@avenuegroup.re'
-                };
+        // Collect all inspection data
+        const inspectionData = {
+            property_address: propertyAddress,
+            tenant_name: tenantName,
+            inspector_name: inspectorName,
+            inspection_date: inspectionDate,
+            inspection_time: inspectionTime,
+            gps_location: gpsLocation,
+            sections: []
+        };
 
-                await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams);
-                alert('Report sent successfully!');
-            } catch (error) {
-                alert('Error sending email: ' + error.message);
-                console.error(error);
-            } finally {
-                document.getElementById('overlay').style.display = 'none';
-                document.getElementById('loading').classList.add('hidden');
+        // Gather all sections and items
+        const sections = document.querySelectorAll('.section');
+        sections.forEach(section => {
+            const sectionName = section.querySelector('h2').textContent;
+            const items = section.querySelectorAll('.item');
+            
+            const sectionData = {
+                section_name: sectionName,
+                items: []
+            };
+
+            items.forEach(item => {
+                const itemName = item.querySelector('h4').textContent;
+                const condition = item.querySelector('.condition').value;
+                const actionItem = item.querySelector('.action-item').value;
+                let comments = item.querySelector('.comments').value;
+
+                // Add blind measurements if present
+                const blindWidth = item.querySelector('.blind-width');
+                const blindHeight = item.querySelector('.blind-height');
+                if (blindWidth && blindHeight && (blindWidth.value || blindHeight.value)) {
+                    const measurement = `Blind Size: ${blindWidth.value || '?'}" x ${blindHeight.value || '?'}"`;
+                    comments = comments ? `${measurement}. ${comments}` : measurement;
+                }
+
+                // Add filter size if present
+                const filterSize = item.querySelector('.filter-size');
+                if (filterSize && filterSize.value) {
+                    const size = `Filter Size: ${filterSize.value}`;
+                    comments = comments ? `${size}. ${comments}` : size;
+                }
+
+                // Collect photos for this item
+                const photoElements = item.querySelectorAll('.photos img');
+                const photos = [];
+                photoElements.forEach(photo => {
+                    photos.push(photo.src); // Base64 encoded image
+                });
+
+                // Only include items that have data
+                if (condition !== '-' || comments.trim() || actionItem.trim() || photos.length > 0) {
+                    // Determine condition columns for Excel
+                    let condNE = '-', condSFP = '-', condAction = '-', condDamage = '-';
+                    
+                    if (condition === 'N' || condition === 'E') {
+                        condNE = condition;
+                    } else if (condition === 'S' || condition === 'F' || condition === 'P') {
+                        condSFP = condition;
+                    } else if (condition === '!') {
+                        condAction = condition;
+                    } else if (condition === 'D' || condition === 'TD') {
+                        condDamage = condition;
+                    }
+
+                    sectionData.items.push({
+                        item_name: itemName,
+                        condition: condition,
+                        condition_ne: condNE,
+                        condition_sfp: condSFP,
+                        condition_action: condAction,
+                        condition_damage: condDamage,
+                        action_item: actionItem,
+                        comments: comments,
+                        photos: photos,
+                        is_damage: (condition === 'D' || condition === 'TD' || condition === 'P' || condition === '!')
+                    });
+                }
+            });
+
+            if (sectionData.items.length > 0) {
+                inspectionData.sections.push(sectionData);
             }
+        });
+
+        // Send to N8N webhook
+        const N8N_WEBHOOK_URL = 'YOUR_N8N_WEBHOOK_URL_HERE';
+        
+        const response = await fetch(N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(inspectionData)
+        });
+
+        if (response.ok) {
+            alert('✅ Report sent successfully! PDF and Excel reports will be emailed to property managers.');
+        } else {
+            throw new Error('Failed to send report');
         }
 
-        // Initialize
-        updateDateTime();
-        getGPS();
-        setInterval(updateDateTime, 1000);
-    </script>
-</body>
-</html>
+    } catch (error) {
+        alert('❌ Error sending report: ' + error.message);
+        console.error('Error:', error);
+    } finally {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('loading').classList.add('hidden');
+    }
+}
