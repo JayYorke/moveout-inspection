@@ -54,7 +54,7 @@
         .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; }
         .photo { position: relative; width: 100%; padding-top: 100%; }
         .photo img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
-        .photo button { position: absolute; top: -8px; right: -8px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .photo button { position: absolute; top: -8px; right: -8px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-weight: bold; font-size: 16px; z-index: 10; }
         .add-section-btns { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .add-section-btns h3 { margin-bottom: 12px; color: #333; font-size: 1.2em; }
         .add-btn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
@@ -70,10 +70,11 @@
         .hidden { display: none !important; }
         .loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1001; text-align: center; min-width: 200px; }
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; }
-        .camera-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: black; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .camera-view video { display: block; max-width: 100%; max-height: calc(100vh - 150px); width: 100%; }
-        .camera-controls { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 20px; width: 100%; max-width: 400px; }
-        .camera-btn { background: white; color: black; border: none; padding: 14px 20px; border-radius: 50px; cursor: pointer; font-size: 0.9em; font-weight: 600; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .camera-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: black; z-index: 2000; display: none; flex-direction: column; }
+        .camera-view video { width: 100%; height: calc(100vh - 120px); object-fit: cover; }
+        .camera-controls { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 20px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .camera-btn { background: white; color: black; border: none; padding: 14px 20px; border-radius: 50px; cursor: pointer; font-size: 0.9em; font-weight: 600; box-shadow: 0 4px 8px rgba(0,0,0,0.3); touch-action: manipulation; }
+        .camera-btn:active { transform: scale(0.95); opacity: 0.8; }
         .capture-btn { background: #007bff; color: white; grid-column: 1 / -1; font-size: 1.1em; }
         .flash-btn { background: #ffc107; color: black; }
         .zoom-btn { background: #17a2b8; color: white; }
@@ -81,20 +82,22 @@
         .measure-input { display: flex; gap: 8px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
         .measure-input input { width: 80px; flex-shrink: 0; }
         canvas { display: none; }
-        video { display: none; }
+        .photo-flash { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: white; z-index: 2001; opacity: 0; pointer-events: none; transition: opacity 0.1s; }
+        .photo-flash.active { opacity: 0.8; }
     </style>
 </head>
 <body>
     <div class="overlay" id="overlay"></div>
     <div class="loading hidden" id="loading"><h3>Processing...</h3><p>Please wait</p></div>
+    <div class="photo-flash" id="photoFlash"></div>
     <div class="camera-view" id="cameraView">
-        <video id="video" autoplay playsinline></video>
+        <video id="video" autoplay playsinline muted></video>
         <canvas id="canvas"></canvas>
         <div class="camera-controls">
-            <button class="camera-btn capture-btn" id="captureBtn">📷 Capture</button>
+            <button class="camera-btn capture-btn" id="captureBtn">📷 Capture Photo</button>
             <button class="camera-btn zoom-btn" id="zoomBtn">🔍 Zoom</button>
-            <button class="camera-btn flash-btn" id="flashBtn">💡 Flash</button>
-            <button class="camera-btn close-camera-btn" id="closeCameraBtn">✕ Close</button>
+            <button class="camera-btn flash-btn" id="flashBtn">💡 Flash: OFF</button>
+            <button class="camera-btn close-camera-btn" id="closeCameraBtn">✕ Close Camera</button>
         </div>
     </div>
     <div class="landing-page" id="landingPage">
@@ -168,7 +171,8 @@
 <script>
 const URL='https://n8n.335.rent/webhook/moveout-inspection';
 const items={'Bedroom 1':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 2':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 3':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 4':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 5':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bathroom 1':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 2':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 3':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 4':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Kitchen':['Cabinets/Drawers','Counter','Dishwasher','Faucet/Plumbing','Flooring/Baseboard','Light Fixture','Microwave','Oven','Range/Fan/Hood/Filter','Refrigerator','Sink/Disposal','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Living Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Dining Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Family Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Laundry':['Flooring/Baseboard','Light Fixture','Switch/Outlet','Wall/Ceiling','Other'],'Hallway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Hallway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Stairway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling','Handrail'],'Stairway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling','Handrail'],'Basement':['Door/Knob/Lock','Flooring/Baseboard','Light Fixture/Fan','Other','Smoke detector','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Entry':['Door/Knob/Lock','Doorbell','Flooring/Baseboard','Light Fixture/Fan','Other','Security/Screen Door','Switch/Outlet','Wall/Ceiling'],'Front Yard':['Building Exterior','Landscaping','Walkway/Driveway','Other'],'Back Yard':['Patio/Deck/Balcony','Landscaping','Fence','Light Fixture','Other'],'Side Yard':['Landscaping','Fence','Walkway','Other'],'Garage':['Door/Opener','Flooring','Light Fixture','Wall/Ceiling','Window/Lock','Other'],'Systems':['Furnace/Heating','Furnace Filter Size','Air Conditioning','Water Heater','Electrical Panel','Plumbing','Other'],'Other':[]};
-let tgt=null,str=null,zm=1,fl=false;
+let tgt=null,str=null,zm=1,fl=false,track=null;
+
 function startNew(){document.getElementById('landingPage').style.display='none';document.getElementById('formPage').style.display='block';upd();gps();}
 function goHome(){if(confirm('Unsaved changes will be lost')){document.getElementById('formPage').style.display='none';document.getElementById('landingPage').style.display='block';clr();loadHist();}}
 function clr(){document.getElementById('addr').value='';document.getElementById('tenant').value='';document.getElementById('inspector').value='';document.getElementById('sections').innerHTML='';}
@@ -177,21 +181,276 @@ function gps(){if(navigator.geolocation){navigator.geolocation.getCurrentPositio
 function addSec(t){const id=`s-${Date.now()}`,s=document.createElement('div');s.className='section';s.id=id;s.innerHTML=`<div class="section-header"><h2>${t}</h2><button class="remove-section" onclick="remSec('${id}')">Remove</button></div><div id="${id}-i"></div><button class="add-item-btn" onclick="addCustom('${id}','${t}')">+ Custom Item</button>`;document.getElementById('sections').appendChild(s);(items[t]||[]).forEach(n=>addItm(id,n));}
 function remSec(id){if(confirm('Remove?'))document.getElementById(id).remove();}
 function addCustom(sid,sn){const n=prompt('Item name:');if(n&&n.trim())addItm(sid,n.trim());}
-function addItm(sid,n){const id=`i-${Date.now()}-${Math.random().toString(36).substr(2,9)}`,c=document.getElementById(`${sid}-i`),m=n.toLowerCase().includes('window covering'),f=n.toLowerCase().includes('filter'),d=document.createElement('div');d.className='item';d.id=id;d.innerHTML=`<div class="item-header"><h4>${n}</h4><button class="remove-item" onclick="remItm('${id}')">Remove</button></div><div class="form-group"><label>Condition</label><select class="cond"><option value="-">-</option><option value="N">N-New</option><option value="E">E-Excellent</option><option value="S">S-Satisfactory</option><option value="F">F-Fair</option><option value="P">P-Poor</option><option value="!">!-Action</option><option value="D">D-Damaged</option><option value="TD">TD-Tenant Damaged</option></select></div>${m?'<div class="form-group"><label>Blind Size</label><div class="measure-input"><input type="number" class="bw" placeholder="Width" step="0.25"><span>x</span><input type="number" class="bh" placeholder="Height" step="0.25"><span>in</span></div></div>':''}${f?'<div class="form-group"><label>Filter Size</label><input type="text" class="fs" placeholder="16x25x1"></div>':''}<div class="form-group"><label>Action</label><input type="text" class="act" placeholder="Action needed"></div><div class="form-group"><label>Comments</label><textarea class="com" placeholder="Comments"></textarea></div><button class="photo-btn" onclick="cam('${id}')">📷 Photo</button><div class="photos" id="${id}-p"></div>`;c.appendChild(d);}
+function addItm(sid,n){const id=`i-${Date.now()}-${Math.random().toString(36).substr(2,9)}`,c=document.getElementById(`${sid}-i`),m=n.toLowerCase().includes('window covering'),f=n.toLowerCase().includes('filter'),d=document.createElement('div');d.className='item';d.id=id;d.innerHTML=`<div class="item-header"><h4>${n}</h4><button class="remove-item" onclick="remItm('${id}')">Remove</button></div><div class="form-group"><label>Condition</label><select class="cond"><option value="-">-</option><option value="N">N-New</option><option value="E">E-Excellent</option><option value="S">S-Satisfactory</option><option value="F">F-Fair</option><option value="P">P-Poor</option><option value="!">!-Action</option><option value="D">D-Damaged</option><option value="TD">TD-Tenant Damaged</option></select></div>${m?'<div class="form-group"><label>Blind Size</label><div class="measure-input"><input type="number" class="bw" placeholder="Width" step="0.25"><span>x</span><input type="number" class="bh" placeholder="Height" step="0.25"><span>in</span></div></div>':''}${f?'<div class="form-group"><label>Filter Size</label><input type="text" class="fs" placeholder="16x25x1"></div>':''}<div class="form-group"><label>Comments</label><textarea class="com" placeholder="Comments"></textarea></div><button class="photo-btn" onclick="cam('${id}')">📷 Take Photo</button><div class="photos" id="${id}-p"></div>`;c.appendChild(d);}
 function remItm(id){if(confirm('Remove?'))document.getElementById(id).remove();}
-async function cam(id){tgt=id;const v=document.getElementById('cameraView'),vid=document.getElementById('video');try{str=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}});vid.srcObject=str;v.style.display='flex';}catch(e){alert('Camera error');}}
-function closeCam(){const v=document.getElementById('cameraView'),vid=document.getElementById('video');if(str){str.getTracks().forEach(t=>t.stop());str=null;}vid.srcObject=null;v.style.display='none';tgt=null;zm=1;fl=false;}
-function cap(){const vid=document.getElementById('video'),c=document.getElementById('canvas'),ctx=c.getContext('2d');c.width=vid.videoWidth;c.height=vid.videoHeight;ctx.drawImage(vid,0,0);c.toBlob(b=>{const r=new FileReader();r.onloadend=()=>addPh(tgt,r.result);r.readAsDataURL(b);},'image/jpeg',0.9);}
-function addPh(id,d){const p=document.getElementById(`${id}-p`),pid=`p-${Date.now()}`,dv=document.createElement('div');dv.className='photo';dv.id=pid;dv.innerHTML=`<img src="${d}"><button onclick="remPh('${pid}')">×</button>`;p.appendChild(dv);}
-function remPh(id){document.getElementById(id).remove();}
-document.getElementById('captureBtn').onclick=cap;
-document.getElementById('closeCameraBtn').onclick=closeCam;
-async function submit(){const a=document.getElementById('addr').value,t=document.getElementById('tenant').value,i=document.getElementById('inspector').value;if(!a||!t||!i){alert('Fill required fields');return;}document.getElementById('overlay').style.display='block';document.getElementById('loading').classList.remove('hidden');try{const dt=document.getElementById('date').textContent,tm=document.getElementById('time').textContent,g=document.getElementById('gps').textContent,data={property_address:a,tenant_name:t,inspector_name:i,inspection_date:dt,inspection_time:tm,gps_location:g,sections:[]};document.querySelectorAll('.section').forEach(s=>{const sn=s.querySelector('h2').textContent,sd={section_name:sn,items:[]};s.querySelectorAll('.item').forEach(it=>{const nm=it.querySelector('h4').textContent,cd=it.querySelector('.cond').value,ac=it.querySelector('.act').value;let cm=it.querySelector('.com').value;const bw=it.querySelector('.bw'),bh=it.querySelector('.bh');if(bw&&bh&&(bw.value||bh.value))cm=`Blind:${bw.value||'?'}x${bh.value||'?'}.${cm}`;const fs=it.querySelector('.fs');if(fs&&fs.value)cm=`Filter:${fs.value}.${cm}`;const ph=[];it.querySelectorAll('.photos img').forEach(p=>ph.push(p.src));if(cd!=='-'||cm.trim()||ac.trim()||ph.length>0){let ne='-',sfp='-',act='-',dmg='-';if(cd==='N'||cd==='E')ne=cd;else if(cd==='S'||cd==='F'||cd==='P')sfp=cd;else if(cd==='!')act=cd;else if(cd==='D'||cd==='TD')dmg=cd;sd.items.push({item_name:nm,condition:cd,condition_ne:ne,condition_sfp:sfp,condition_action:act,condition_damage:dmg,action_item:ac,comments:cm,photos:ph,is_damage:cd==='D'||cd==='TD'||cd==='P'||cd==='!'});}});if(sd.items.length>0)data.sections.push(sd);});const xl=genXL(data),pdf=await genPDF(data);data.excel_file=xl;data.pdf_file=pdf;const r=await fetch(URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(r.ok){saveHist(data);alert('✅ Submitted!');goHome();}else{throw new Error('Failed');}}catch(e){alert('❌ Error: '+e.message);}finally{document.getElementById('overlay').style.display='none';document.getElementById('loading').classList.add('hidden');}}
-function genXL(d){const wb=XLSX.utils.book_new(),dd=[['DO NOT MODIFY'],[],['Property: '+d.property_address],['Tenant: '+d.tenant_name],['Inspector: '+d.inspector_name],['Date: '+d.inspection_date],[],['LEGEND'],['N=New','E=Excellent','S=Satisfactory','F=Fair'],['P=Poor','!=Action','D=Damaged','TD=Tenant Damaged'],[],['Area','Item','N/E','S/F/P','!','D/TD','Action','Comments']],dm=[['DAMAGES'],[],['Property: '+d.property_address],['Tenant: '+d.tenant_name],['Inspector: '+d.inspector_name],['Date: '+d.inspection_date],[],['LEGEND'],['N=New','E=Excellent','S=Satisfactory','F=Fair'],['P=Poor','!=Action','D=Damaged','TD=Tenant Damaged'],[],['Area','Item','N/E','S/F/P','!','D/TD','Action','Comments']];d.sections.forEach(s=>s.items.forEach(it=>{const r=[s.section_name,it.item_name,it.condition_ne,it.condition_sfp,it.condition_action,it.condition_damage,it.action_item,it.comments];dd.push(r);if(it.is_damage)dm.push(r);}));XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(dd),'Data');XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(dm),'Damages');return XLSX.write(wb,{bookType:'xlsx',type:'base64'});}
-async function genPDF(d){const{jsPDF}=window.jspdf,pdf=new jsPDF(),props=[[`Property: ${d.property_address}`],[`Tenant: ${d.tenant_name}`],[`Inspector: ${d.inspector_name}`],[`Date: ${d.inspection_date}`]];let y=20;pdf.setFontSize(16);pdf.text('Move Out Inspection',105,y,{align:'center'});y+=10;pdf.setFontSize(10);pdf.text('AG Management - (248)335-7368',105,y,{align:'center'});y+=15;props.forEach(p=>{pdf.text(p[0],20,y);y+=5;});y+=10;for(const s of d.sections){if(y>250){pdf.addPage();y=20;}pdf.setFontSize(14);pdf.text(s.section_name,20,y);y+=7;for(const it of s.items){if(y>240){pdf.addPage();y=20;}pdf.setFontSize(10);pdf.text(`• ${it.item_name}`,25,y);y+=5;if(it.condition!=='-'){pdf.text(`  Cond: ${it.condition}`,30,y);y+=4;}if(it.action_item.trim()){pdf.text(`  Action: ${it.action_item}`,30,y);y+=4;}if(it.comments.trim()){const l=pdf.splitTextToSize(`  ${it.comments}`,160);pdf.text(l,30,y);y+=l.length*4;}if(it.photos.length>0){let x=30;for(const p of it.photos){if(x>160){x=30;y+=40;}if(y>240){pdf.addPage();y=20;x=30;}try{pdf.addImage(p,'JPEG',x,y,35,35);x+=40;}catch(e){}}y+=40;}y+=5;}}return pdf.output('datauristring').split(',')[1];}
-function saveHist(d){const h=JSON.parse(localStorage.getItem('inspections')||'[]');h.unshift({...d,id:Date.now(),timestamp:new Date().toISOString()});localStorage.setItem('inspections',JSON.stringify(h));}
-function loadHist(){const h=JSON.parse(localStorage.getItem('inspections')||'[]'),c=document.getElementById('historyContainer');if(h.length===0){c.innerHTML='<div class="history-empty"><p>No inspections yet</p><p>Start your first inspection above!</p></div>';return;}c.innerHTML=h.map(r=>`<div class="report-card"><h3>${r.property_address}</h3><p>Tenant: ${r.tenant_name}</p><p>Inspector: ${r.inspector_name}</p><p>Date: ${r.inspection_date} ${r.inspection_time}</p><div class="report-card-actions"><button class="resend-btn" onclick="resend(${r.id})">📧 Resend Report</button></div></div>`).join('');}
-async function resend(id){const h=JSON.parse(localStorage.getItem('inspections')||'[]'),r=h.find(x=>x.id===id);if(!r){alert('Report not found');return;}document.getElementById('overlay').style.display='block';document.getElementById('loading').classList.remove('hidden');try{const res=await fetch(URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(r)});if(res.ok)alert('✅ Resent!');else throw new Error('Failed');}catch(e){alert('❌ Error: '+e.message);}finally{document.getElementById('overlay').style.display='none';document.getElementById('loading').classList.add('hidden');}}
+
+async function cam(id){
+    tgt=id;
+    const v=document.getElementById('cameraView'),vid=document.getElementById('video');
+    try{
+        str=await navigator.mediaDevices.getUserMedia({
+            video:{
+                facingMode:'environment',
+                width:{ideal:1920},
+                height:{ideal:1080}
+            }
+        });
+        vid.srcObject=str;
+        track=str.getVideoTracks()[0];
+        const caps=track.getCapabilities();
+        if(caps.torch){
+            document.getElementById('flashBtn').style.display='block';
+        }else{
+            document.getElementById('flashBtn').style.display='none';
+        }
+        v.style.display='flex';
+        zm=1;
+        fl=false;
+        document.getElementById('flashBtn').textContent='💡 Flash: OFF';
+    }catch(e){
+        alert('Camera access denied or unavailable');
+        console.error(e);
+    }
+}
+
+function closeCam(){
+    const v=document.getElementById('cameraView'),vid=document.getElementById('video');
+    if(str){
+        str.getTracks().forEach(t=>t.stop());
+        str=null;
+        track=null;
+    }
+    vid.srcObject=null;
+    v.style.display='none';
+    tgt=null;
+    zm=1;
+    fl=false;
+}
+
+function cap(){
+    if(!tgt)return;
+    const vid=document.getElementById('video'),c=document.getElementById('canvas'),ctx=c.getContext('2d'),flash=document.getElementById('photoFlash');
+    if(vid.readyState===vid.HAVE_ENOUGH_DATA){
+        flash.classList.add('active');
+        setTimeout(()=>flash.classList.remove('active'),100);
+        c.width=vid.videoWidth;
+        c.height=vid.videoHeight;
+        ctx.drawImage(vid,0,0);
+        c.toBlob(b=>{
+            const r=new FileReader();
+            r.onloadend=()=>{
+                addPh(tgt,r.result);
+                const btn=document.getElementById('captureBtn');
+                btn.textContent='✅ Photo Captured!';
+                btn.style.background='#28a745';
+                setTimeout(()=>{
+                    btn.textContent='📷 Capture Photo';
+                    btn.style.background='#007bff';
+                },1000);
+            };
+            r.readAsDataURL(b);
+        },'image/jpeg',0.9);
+    }
+}
+
+function toggleZoom(){
+    if(!track)return;
+    const caps=track.getCapabilities();
+    if(caps.zoom){
+        zm=zm===1?2:1;
+        track.applyConstraints({advanced:[{zoom:zm}]});
+        document.getElementById('zoomBtn').textContent=`🔍 Zoom: ${zm}x`;
+    }
+}
+
+function toggleFlash(){
+    if(!track)return;
+    const caps=track.getCapabilities();
+    if(caps.torch){
+        fl=!fl;
+        track.applyConstraints({advanced:[{torch:fl}]});
+        document.getElementById('flashBtn').textContent=fl?'💡 Flash: ON':'💡 Flash: OFF';
+    }
+}
+
+function addPh(id,d){
+    const p=document.getElementById(`${id}-p`),pid=`p-${Date.now()}`,dv=document.createElement('div');
+    dv.className='photo';
+    dv.id=pid;
+    dv.innerHTML=`<img src="${d}"><button onclick="remPh('${pid}')">×</button>`;
+    p.appendChild(dv);
+}
+
+function remPh(id){
+    if(confirm('Delete photo?'))document.getElementById(id).remove();
+}
+
+document.getElementById('captureBtn').addEventListener('click',cap);
+document.getElementById('closeCameraBtn').addEventListener('click',closeCam);
+document.getElementById('zoomBtn').addEventListener('click',toggleZoom);
+document.getElementById('flashBtn').addEventListener('click',toggleFlash);
+
+async function submit(){
+    const a=document.getElementById('addr').value,t=document.getElementById('tenant').value,i=document.getElementById('inspector').value;
+    if(!a||!t||!i){alert('Please fill in all required fields');return;}
+    document.getElementById('overlay').style.display='block';
+    document.getElementById('loading').classList.remove('hidden');
+    try{
+        const dt=document.getElementById('date').textContent,tm=document.getElementById('time').textContent,g=document.getElementById('gps').textContent,
+        data={property_address:a,tenant_name:t,inspector_name:i,inspection_date:dt,inspection_time:tm,gps_location:g,sections:[]};
+        document.querySelectorAll('.section').forEach(s=>{
+            const sn=s.querySelector('h2').textContent,sd={section_name:sn,items:[]};
+            s.querySelectorAll('.item').forEach(it=>{
+                const nm=it.querySelector('h4').textContent,cd=it.querySelector('.cond').value;
+                let cm=it.querySelector('.com').value;
+                const bw=it.querySelector('.bw'),bh=it.querySelector('.bh');
+                if(bw&&bh&&(bw.value||bh.value))cm=`Blind:${bw.value||'?'}x${bh.value||'?'}. ${cm}`;
+                const fs=it.querySelector('.fs');
+                if(fs&&fs.value)cm=`Filter:${fs.value}. ${cm}`;
+                const ph=[];
+                it.querySelectorAll('.photos img').forEach(p=>ph.push(p.src));
+                if(cd!=='-'||cm.trim()||ph.length>0){
+                    let ne='-',sfp='-',act='-',dmg='-';
+                    if(cd==='N'||cd==='E')ne=cd;
+                    else if(cd==='S'||cd==='F'||cd==='P')sfp=cd;
+                    else if(cd==='!')act=cd;
+                    else if(cd==='D'||cd==='TD')dmg=cd;
+                    sd.items.push({
+                        item_name:nm,
+                        condition:cd,
+                        condition_ne:ne,
+                        condition_sfp:sfp,
+                        condition_action:act,
+                        condition_damage:dmg,
+                        comments:cm,
+                        photos:ph,
+                        is_damage:cd==='D'||cd==='TD'||cd==='P'||cd==='!'
+                    });
+                }
+            });
+            if(sd.items.length>0)data.sections.push(sd);
+        });
+        const xl=genXL(data),pdf=await genPDF(data);
+        data.excel_file=xl;
+        data.pdf_file=pdf;
+        const r=await fetch(URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({body:data})});
+        if(r.ok){
+            saveHist(data);
+            alert('✅ Report submitted successfully!');
+            goHome();
+        }else{
+            throw new Error('Server error');
+        }
+    }catch(e){
+        alert('❌ Submission failed: '+e.message);
+        console.error(e);
+    }finally{
+        document.getElementById('overlay').style.display='none';
+        document.getElementById('loading').classList.add('hidden');
+    }
+}
+
+function genXL(d){
+    const wb=XLSX.utils.book_new(),
+    dd=[['MOVE OUT INSPECTION REPORT'],[],['Property: '+d.property_address],['Tenant: '+d.tenant_name],['Inspector: '+d.inspector_name],['Date: '+d.inspection_date],[],['LEGEND'],['N=New','E=Excellent','S=Satisfactory','F=Fair'],['P=Poor','!=Action','D=Damaged','TD=Tenant Damaged'],[],['Area','Item','N/E','S/F/P','!','D/TD','Comments']],
+    dm=[['DAMAGES REPORT'],[],['Property: '+d.property_address],['Tenant: '+d.tenant_name],['Inspector: '+d.inspector_name],['Date: '+d.inspection_date],[],['LEGEND'],['N=New','E=Excellent','S=Satisfactory','F=Fair'],['P=Poor','!=Action','D=Damaged','TD=Tenant Damaged'],[],['Area','Item','N/E','S/F/P','!','D/TD','Comments']];
+    d.sections.forEach(s=>s.items.forEach(it=>{
+        const r=[s.section_name,it.item_name,it.condition_ne,it.condition_sfp,it.condition_action,it.condition_damage,it.comments];
+        dd.push(r);
+        if(it.is_damage)dm.push(r);
+    }));
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(dd),'Inspection');
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(dm),'Damages');
+    return XLSX.write(wb,{bookType:'xlsx',type:'base64'});
+}
+
+async function genPDF(d){
+    const{jsPDF}=window.jspdf,pdf=new jsPDF(),
+    props=[`Property: ${d.property_address}`,`Tenant: ${d.tenant_name}`,`Inspector: ${d.inspector_name}`,`Date: ${d.inspection_date}`,`GPS: ${d.gps_location}`];
+    let y=20;
+    pdf.setFontSize(18);
+    pdf.text('Move Out Inspection Report',105,y,{align:'center'});
+    y+=10;
+    pdf.setFontSize(10);
+    pdf.text('AG Management - (248)335-7368',105,y,{align:'center'});
+    y+=15;
+    pdf.setFontSize(11);
+    props.forEach(p=>{pdf.text(p,20,y);y+=6;});
+    y+=10;
+    for(const s of d.sections){
+        if(y>250){pdf.addPage();y=20;}
+        pdf.setFontSize(14);
+        pdf.setFont(undefined,'bold');
+        pdf.text(s.section_name,20,y);
+        pdf.setFont(undefined,'normal');
+        y+=7;
+        for(const it of s.items){
+            if(y>240){pdf.addPage();y=20;}
+            pdf.setFontSize(11);
+            pdf.text(`• ${it.item_name}`,25,y);
+            y+=5;
+            if(it.condition!=='-'){
+                pdf.setFontSize(10);
+                pdf.text(`   Condition: ${it.condition}`,30,y);
+                y+=5;
+            }
+            if(it.comments.trim()){
+                pdf.setFontSize(9);
+                const l=pdf.splitTextToSize(`   ${it.comments}`,160);
+                pdf.text(l,30,y);
+                y+=l.length*4+2;
+            }
+            if(it.photos.length>0){
+                let x=30;
+                for(const p of it.photos){
+                    if(x>160){x=30;y+=40;}
+                    if(y>240){pdf.addPage();y=20;x=30;}
+                    try{
+                        pdf.addImage(p,'JPEG',x,y,35,35);
+                        x+=40;
+                    }catch(e){console.error('Image error',e);}
+                }
+                y+=40;
+            }
+            y+=3;
+        }
+        y+=5;
+    }
+    return pdf.output('datauristring').split(',')[1];
+}
+
+function saveHist(d){
+    const h=JSON.parse(localStorage.getItem('inspections')||'[]');
+    h.unshift({...d,id:Date.now(),timestamp:new Date().toISOString()});
+    localStorage.setItem('inspections',JSON.stringify(h));
+}
+
+function loadHist(){
+    const h=JSON.parse(localStorage.getItem('inspections')||'[]'),c=document.getElementById('historyContainer');
+    if(h.length===0){
+        c.innerHTML='<div class="history-empty"><p>No inspections yet</p><p>Start your first inspection above!</p></div>';
+        return;
+    }
+    c.innerHTML=h.map(r=>`<div class="report-card"><h3>${r.property_address}</h3><p>Tenant: ${r.tenant_name}</p><p>Inspector: ${r.inspector_name}</p><p>Date: ${r.inspection_date} ${r.inspection_time}</p><div class="report-card-actions"><button class="resend-btn" onclick="resend(${r.id})">📧 Resend Report</button></div></div>`).join('');
+}
+
+async function resend(id){
+    const h=JSON.parse(localStorage.getItem('inspections')||'[]'),r=h.find(x=>x.id===id);
+    if(!r){alert('Report not found');return;}
+    document.getElementById('overlay').style.display='block';
+    document.getElementById('loading').classList.remove('hidden');
+    try{
+        const res=await fetch(URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({body:r})});
+        if(res.ok)alert('✅ Report resent successfully!');
+        else throw new Error('Failed');
+    }catch(e){
+        alert('❌ Resend failed: '+e.message);
+    }finally{
+        document.getElementById('overlay').style.display='none';
+        document.getElementById('loading').classList.add('hidden');
+    }
+}
+
 loadHist();
 </script>
 </body>
