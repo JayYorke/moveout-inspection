@@ -12,498 +12,81 @@
     <link rel="apple-touch-icon" href="/moveout-inspection/icon-192.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            padding: 10px; 
-            background-color: #f5f5f5; 
-            max-width: 1200px; 
-            margin: 0 auto;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-        
-        .header { 
-            background-color: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            margin-bottom: 15px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-        }
-        
-        .company-info h1 { 
-            color: #333; 
-            margin-bottom: 8px;
-            font-size: 1.5em;
-        }
-        .company-info p { 
-            color: #666; 
-            margin: 3px 0;
-            font-size: 0.9em;
-        }
-        
-        .location-info { 
-            background-color: #e8f4f8; 
-            padding: 12px; 
-            border-radius: 4px; 
-            margin-bottom: 15px; 
-            font-size: 0.85em;
-            border-left: 4px solid #007bff; 
-        }
-        
-        .basic-info { 
-            background-color: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            margin-bottom: 15px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding: 10px; background-color: #f5f5f5; max-width: 1200px; margin: 0 auto; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        .landing-page { display: block; }
+        .landing-header { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 30px 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; }
+        .landing-header h1 { font-size: 1.8em; margin-bottom: 10px; }
+        .landing-header p { opacity: 0.9; font-size: 0.95em; }
+        .start-new-btn { background: #28a745; color: white; border: none; padding: 18px 30px; border-radius: 10px; font-size: 1.1em; font-weight: 600; width: 100%; cursor: pointer; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(40,167,69,0.3); }
+        .start-new-btn:active { transform: scale(0.98); }
+        .history-section { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .history-section h2 { color: #333; margin-bottom: 15px; font-size: 1.4em; }
+        .history-empty { text-align: center; padding: 40px 20px; color: #666; }
+        .report-card { background: #f8f9fa; border-left: 4px solid #007bff; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .report-card h3 { color: #007bff; font-size: 1.1em; margin-bottom: 8px; }
+        .report-card p { color: #666; font-size: 0.9em; margin: 4px 0; }
+        .report-card-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .report-card-actions button { flex: 1; padding: 10px; border: none; border-radius: 6px; font-size: 0.9em; font-weight: 600; cursor: pointer; }
+        .resend-btn { background: #007bff; color: white; }
+        .form-page { display: none; }
+        .back-to-home { background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; font-size: 0.9em; font-weight: 600; }
+        .header { background-color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .company-info h1 { color: #333; margin-bottom: 8px; font-size: 1.5em; }
+        .company-info p { color: #666; margin: 3px 0; font-size: 0.9em; }
+        .location-info { background-color: #e8f4f8; padding: 12px; border-radius: 4px; margin-bottom: 15px; font-size: 0.85em; border-left: 4px solid #007bff; }
+        .basic-info { background-color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 12px; }
-        
-        label { 
-            display: block; 
-            margin-bottom: 5px; 
-            font-weight: 600; 
-            color: #333;
-            font-size: 0.9em;
-        }
-        
-        input, textarea, select { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            font-size: 16px;
-            font-family: inherit;
-        }
-        
-        textarea { 
-            min-height: 80px;
-            resize: vertical;
-        }
-        
-        .section { 
-            background-color: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            margin-bottom: 15px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-        }
-        
-        .section-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 12px; 
-            padding-bottom: 8px; 
-            border-bottom: 2px solid #007bff; 
-        }
-        
-        .section-header h2 { 
-            color: #007bff;
-            font-size: 1.3em;
-        }
-        
-        .remove-section { 
-            background: #dc3545; 
-            color: white; 
-            border: none; 
-            padding: 8px 12px; 
-            border-radius: 6px; 
-            cursor: pointer;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-        
-        .item { 
-            background: #f8f9fa; 
-            padding: 12px; 
-            border-radius: 8px; 
-            margin-bottom: 12px; 
-            border-left: 3px solid #28a745; 
-        }
-        
-        .item-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 10px; 
-        }
-        
-        .item-header h4 { 
-            color: #333;
-            font-size: 1em;
-        }
-        
-        .remove-item { 
-            background: #6c757d; 
-            color: white; 
-            border: none; 
-            padding: 6px 10px; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-size: 0.8em;
-            font-weight: 600;
-        }
-        
-        .photo-btn { 
-            background: #007bff; 
-            color: white; 
-            border: none; 
-            padding: 12px 20px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            margin: 10px 5px 10px 0;
-            font-size: 0.95em;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .photo-btn:active { 
-            background: #0056b3; 
-            transform: scale(0.98);
-        }
-        
-        .photos { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
-            gap: 10px; 
-            margin-top: 10px; 
-        }
-        
-        .photo { 
-            position: relative; 
-            width: 100%; 
-            padding-top: 100%; 
-        }
-        
-        .photo img { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            border-radius: 8px; 
-        }
-        
-        .photo button { 
-            position: absolute; 
-            top: -8px; 
-            right: -8px; 
-            background: #dc3545; 
-            color: white; 
-            border: none; 
-            border-radius: 50%; 
-            width: 28px; 
-            height: 28px; 
-            cursor: pointer; 
-            font-weight: bold;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .add-section-btns { 
-            background: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-        }
-        
-        .add-section-btns h3 { 
-            margin-bottom: 12px; 
-            color: #333;
-            font-size: 1.2em;
-        }
-        
-        .add-btn-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
-            gap: 10px; 
-        }
-        
-        .add-btn { 
-            background: #28a745; 
-            color: white; 
-            border: none; 
-            padding: 14px 16px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-        
-        .add-btn:active { 
-            background: #218838;
-            transform: scale(0.98);
-        }
-        
-        .add-item-btn { 
-            background: #17a2b8; 
-            color: white; 
-            border: none; 
-            padding: 12px 20px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            margin-top: 10px;
-            font-size: 0.9em;
-            font-weight: 600;
-            width: 100%;
-        }
-        
-        .add-item-btn:active {
-            background: #138496;
-            transform: scale(0.98);
-        }
-        
-        .action-btns { 
-            display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 12px; 
-            background: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-            margin-bottom: 15px;
-        }
-        
-        .action-btns button { 
-            padding: 16px; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 1em;
-            font-weight: 600;
-            color: white;
-        }
-        
-        .action-btns button:active {
-            transform: scale(0.98);
-        }
-        
-        .export { background: #28a745; }
-        .submit { background: #007bff; }
-        .pdf-btn { background: #dc3545; }
-        
-        .legend { 
-            background: #fff3cd; 
-            padding: 12px; 
-            border-radius: 8px; 
-            margin-bottom: 15px; 
-            border: 1px solid #ffc107; 
-        }
-        
-        .legend h4 { 
-            margin-bottom: 8px; 
-            color: #856404;
-            font-size: 1em;
-        }
-        
-        .legend-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 6px; 
-            font-size: 0.85em;
-        }
-        
-        video { 
-            max-width: 100%; 
-            height: auto; 
-            display: none; 
-            border-radius: 4px; 
-            margin: 10px 0; 
-        }
-        
-        canvas { display: none; }
-        
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 0.9em; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; font-family: inherit; }
+        textarea { min-height: 80px; resize: vertical; }
+        .section { background-color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #007bff; }
+        .section-header h2 { color: #007bff; font-size: 1.3em; }
+        .remove-section { background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600; }
+        .item { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 3px solid #28a745; }
+        .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .item-header h4 { color: #333; font-size: 1em; }
+        .remove-item { background: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: 600; }
+        .photo-btn { background: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; margin: 10px 5px 10px 0; font-size: 0.95em; font-weight: 600; }
+        .photo-btn:active { background: #0056b3; transform: scale(0.98); }
+        .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; }
+        .photo { position: relative; width: 100%; padding-top: 100%; }
+        .photo img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+        .photo button { position: absolute; top: -8px; right: -8px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .add-section-btns { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .add-section-btns h3 { margin-bottom: 12px; color: #333; font-size: 1.2em; }
+        .add-btn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        .add-btn { background: #28a745; color: white; border: none; padding: 14px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9em; font-weight: 600; }
+        .add-btn:active { background: #218838; transform: scale(0.98); }
+        .add-item-btn { background: #17a2b8; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.9em; font-weight: 600; width: 100%; }
+        .action-btns { display: grid; gap: 12px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        .action-btns button { padding: 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1em; font-weight: 600; color: white; }
+        .submit-report-btn { background: #007bff; }
+        .legend { background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffc107; }
+        .legend h4 { margin-bottom: 8px; color: #856404; font-size: 1em; }
+        .legend-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; font-size: 0.85em; }
         .hidden { display: none !important; }
-        
-        .loading { 
-            position: fixed; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            background: white; 
-            padding: 30px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
-            z-index: 1001; 
-            text-align: center;
-            min-width: 200px;
-        }
-        
-        .overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            bottom: 0; 
-            background: rgba(0,0,0,0.5); 
-            z-index: 1000; 
-            display: none; 
-        }
-        
-        .camera-view { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            bottom: 0; 
-            background: black; 
-            z-index: 2000; 
-            display: none; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-        }
-        
-        .camera-view video { 
-            display: block; 
-            max-width: 100%; 
-            max-height: calc(100vh - 150px);
-            width: 100%;
-        }
-        
-        .camera-controls { 
-            position: absolute; 
-            bottom: 20px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            padding: 0 20px;
-            width: 100%;
-            max-width: 400px;
-        }
-        
-        .camera-btn { 
-            background: white; 
-            color: black; 
-            border: none; 
-            padding: 14px 20px; 
-            border-radius: 50px; 
-            cursor: pointer; 
-            font-size: 0.9em;
-            font-weight: 600;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-        
-        .camera-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .capture-btn { 
-            background: #007bff; 
-            color: white;
-            grid-column: 1 / -1;
-            font-size: 1.1em;
-        }
+        .loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1001; text-align: center; min-width: 200px; }
+        .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; }
+        .camera-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: black; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .camera-view video { display: block; max-width: 100%; max-height: calc(100vh - 150px); width: 100%; }
+        .camera-controls { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 20px; width: 100%; max-width: 400px; }
+        .camera-btn { background: white; color: black; border: none; padding: 14px 20px; border-radius: 50px; cursor: pointer; font-size: 0.9em; font-weight: 600; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .capture-btn { background: #007bff; color: white; grid-column: 1 / -1; font-size: 1.1em; }
         .flash-btn { background: #ffc107; color: black; }
         .zoom-btn { background: #17a2b8; color: white; }
-        .close-camera-btn { 
-            background: #dc3545; 
-            color: white;
-            grid-column: 1 / -1;
-        }
-        
-        .measure-input { 
-            display: flex; 
-            gap: 8px; 
-            align-items: center; 
-            margin: 8px 0;
-            flex-wrap: wrap;
-        }
-        
-        .measure-input input { 
-            width: 80px;
-            flex-shrink: 0;
-        }
-
-        .install-prompt {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: #007bff;
-            color: white;
-            padding: 16px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 1000;
-            display: none;
-        }
-
-        .install-prompt button {
-            background: white;
-            color: #007bff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            margin-top: 10px;
-            width: 100%;
-            font-size: 1em;
-        }
-
-        .install-prompt .close-prompt {
-            background: transparent;
-            color: white;
-            border: 1px solid white;
-            margin-left: 10px;
-        }
-        
-        @media (min-width: 768px) {
-            .camera-controls {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .capture-btn, .close-camera-btn {
-                grid-column: auto;
-            }
-            .action-btns {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            .legend-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        @media print { 
-            .add-section-btns, .action-btns, .photo-btn, .remove-section, .remove-item, .add-item-btn { 
-                display: none; 
-            } 
-        }
+        .close-camera-btn { background: #dc3545; color: white; grid-column: 1 / -1; }
+        .measure-input { display: flex; gap: 8px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
+        .measure-input input { width: 80px; flex-shrink: 0; }
+        canvas { display: none; }
+        video { display: none; }
     </style>
 </head>
 <body>
     <div class="overlay" id="overlay"></div>
-    <div class="loading hidden" id="loading">
-        <h3>Generating Reports...</h3>
-        <p>Please wait while we create your reports</p>
-    </div>
-
-    <div class="install-prompt" id="installPrompt">
-        <h4>📱 Install This App</h4>
-        <p>Add Move Out Inspection to your home screen for quick access and offline use!</p>
-        <button id="installBtn">Install App</button>
-        <button class="close-prompt" id="closePrompt">Not Now</button>
-    </div>
-
+    <div class="loading hidden" id="loading"><h3>Processing...</h3><p>Please wait</p></div>
     <div class="camera-view" id="cameraView">
         <video id="video" autoplay playsinline></video>
         <canvas id="canvas"></canvas>
@@ -514,818 +97,102 @@
             <button class="camera-btn close-camera-btn" id="closeCameraBtn">✕ Close</button>
         </div>
     </div>
-
-    <div class="header">
-        <div class="company-info">
-            <h1>Move Out Inspection</h1>
-            <p><strong>Tenant@335.Rent</strong></p>
+    <div class="landing-page" id="landingPage">
+        <div class="landing-header">
+            <h1>📋 Move Out Inspections</h1>
             <p>AG Management</p>
-            <p>2985 12 Mile Berkley MI, 48073</p>
-            <p>(248)335-7368</p>
+            <p>2985 12 Mile Berkley MI, 48073 | (248)335-7368</p>
+        </div>
+        <button class="start-new-btn" onclick="startNew()">➕ Start New Inspection</button>
+        <div class="history-section">
+            <h2>📂 Inspection History</h2>
+            <div id="historyContainer"></div>
         </div>
     </div>
-
-    <div class="location-info" id="locationInfo">
-        <strong>📍 GPS:</strong> <span id="gpsCoords">Getting location...</span><br>
-        <strong>📅 Date:</strong> <span id="inspectionDate"></span><br>
-        <strong>🕐 Time:</strong> <span id="inspectionTime"></span>
-    </div>
-
-    <div class="basic-info">
-        <div class="form-group">
-            <label>Property Address</label>
-            <input type="text" id="propertyAddress" placeholder="Enter property address">
+    <div class="form-page" id="formPage">
+        <button class="back-to-home" onclick="goHome()">← Back to Home</button>
+        <div class="header">
+            <div class="company-info">
+                <h1>Move Out Inspection</h1>
+                <p><strong>Tenant@335.Rent</strong></p>
+                <p>AG Management | 2985 12 Mile Berkley MI, 48073 | (248)335-7368</p>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Tenant(s) Name</label>
-            <input type="text" id="tenantName" placeholder="Enter tenant name(s)">
+        <div class="location-info"><strong>📍 GPS:</strong> <span id="gps">Getting...</span><br><strong>📅 Date:</strong> <span id="date"></span><br><strong>🕐 Time:</strong> <span id="time"></span></div>
+        <div class="basic-info">
+            <div class="form-group"><label>Property Address</label><input type="text" id="addr" placeholder="Enter property address"></div>
+            <div class="form-group"><label>Tenant(s) Name</label><input type="text" id="tenant" placeholder="Enter tenant name(s)"></div>
+            <div class="form-group"><label>Agent/Inspector</label><input type="text" id="inspector" placeholder="Enter inspector name"></div>
         </div>
-        <div class="form-group">
-            <label>Agent/Inspector</label>
-            <input type="text" id="inspectorName" placeholder="Enter inspector name">
+        <div class="legend">
+            <h4>Condition Legend</h4>
+            <div class="legend-grid">
+                <div><strong>N</strong> - New</div><div><strong>E</strong> - Excellent</div><div><strong>S</strong> - Satisfactory</div><div><strong>F</strong> - Fair</div>
+                <div><strong>P</strong> - Poor</div><div><strong>!</strong> - Action</div><div><strong>D</strong> - Damaged</div><div><strong>TD</strong> - Tenant Damaged</div>
+            </div>
         </div>
-    </div>
-
-    <div class="legend">
-        <h4>Condition Legend</h4>
-        <div class="legend-grid">
-            <div><strong>N</strong> - New</div>
-            <div><strong>E</strong> - Excellent</div>
-            <div><strong>S</strong> - Satisfactory</div>
-            <div><strong>F</strong> - Fair</div>
-            <div><strong>P</strong> - Poor</div>
-            <div><strong>!</strong> - Action</div>
-            <div><strong>D</strong> - Damaged</div>
-            <div><strong>TD</strong> - Tenant Damaged</div>
-        </div>
-    </div>
-
-    <div id="sectionsContainer"></div>
-
-    <div class="action-btns">
-        <button class="pdf-btn" onclick="generatePDF()">📄 PDF Report</button>
-        <button class="export" onclick="exportToExcel()">📊 Excel Report</button>
-        <button class="submit" onclick="emailReport()">📧 Email Report</button>
-    </div>
-
-    <div class="add-section-btns">
-        <h3>Add Sections</h3>
-        <div class="add-btn-grid">
-            <button class="add-btn" onclick="addSection('Bedroom 1')">Bedroom 1</button>
-            <button class="add-btn" onclick="addSection('Bedroom 2')">Bedroom 2</button>
-            <button class="add-btn" onclick="addSection('Bedroom 3')">Bedroom 3</button>
-            <button class="add-btn" onclick="addSection('Bedroom 4')">Bedroom 4</button>
-            <button class="add-btn" onclick="addSection('Bedroom 5')">Bedroom 5</button>
-            <button class="add-btn" onclick="addSection('Bathroom 1')">Bathroom 1</button>
-            <button class="add-btn" onclick="addSection('Bathroom 2')">Bathroom 2</button>
-            <button class="add-btn" onclick="addSection('Bathroom 3')">Bathroom 3</button>
-            <button class="add-btn" onclick="addSection('Bathroom 4')">Bathroom 4</button>
-            <button class="add-btn" onclick="addSection('Kitchen')">Kitchen</button>
-            <button class="add-btn" onclick="addSection('Living Room')">Living Room</button>
-            <button class="add-btn" onclick="addSection('Dining Room')">Dining Room</button>
-            <button class="add-btn" onclick="addSection('Family Room')">Family Room</button>
-            <button class="add-btn" onclick="addSection('Laundry')">Laundry</button>
-            <button class="add-btn" onclick="addSection('Hallway 1')">Hallway 1</button>
-            <button class="add-btn" onclick="addSection('Hallway 2')">Hallway 2</button>
-            <button class="add-btn" onclick="addSection('Stairway 1')">Stairway 1</button>
-            <button class="add-btn" onclick="addSection('Stairway 2')">Stairway 2</button>
-            <button class="add-btn" onclick="addSection('Basement')">Basement</button>
-            <button class="add-btn" onclick="addSection('Entry')">Entry</button>
-            <button class="add-btn" onclick="addSection('Front Yard')">Front Yard</button>
-            <button class="add-btn" onclick="addSection('Back Yard')">Back Yard</button>
-            <button class="add-btn" onclick="addSection('Side Yard')">Side Yard</button>
-            <button class="add-btn" onclick="addSection('Garage')">Garage</button>
-            <button class="add-btn" onclick="addSection('Systems')">Systems</button>
-            <button class="add-btn" onclick="addSection('Other')">Other</button>
+        <div id="sections"></div>
+        <div class="action-btns"><button class="submit-report-btn" onclick="submit()">📧 Submit Report (Email PDF & Excel)</button></div>
+        <div class="add-section-btns">
+            <h3>Add Sections</h3>
+            <div class="add-btn-grid">
+                <button class="add-btn" onclick="addSec('Bedroom 1')">Bedroom 1</button>
+                <button class="add-btn" onclick="addSec('Bedroom 2')">Bedroom 2</button>
+                <button class="add-btn" onclick="addSec('Bedroom 3')">Bedroom 3</button>
+                <button class="add-btn" onclick="addSec('Bedroom 4')">Bedroom 4</button>
+                <button class="add-btn" onclick="addSec('Bedroom 5')">Bedroom 5</button>
+                <button class="add-btn" onclick="addSec('Bathroom 1')">Bathroom 1</button>
+                <button class="add-btn" onclick="addSec('Bathroom 2')">Bathroom 2</button>
+                <button class="add-btn" onclick="addSec('Bathroom 3')">Bathroom 3</button>
+                <button class="add-btn" onclick="addSec('Bathroom 4')">Bathroom 4</button>
+                <button class="add-btn" onclick="addSec('Kitchen')">Kitchen</button>
+                <button class="add-btn" onclick="addSec('Living Room')">Living Room</button>
+                <button class="add-btn" onclick="addSec('Dining Room')">Dining Room</button>
+                <button class="add-btn" onclick="addSec('Family Room')">Family Room</button>
+                <button class="add-btn" onclick="addSec('Laundry')">Laundry</button>
+                <button class="add-btn" onclick="addSec('Hallway 1')">Hallway 1</button>
+                <button class="add-btn" onclick="addSec('Hallway 2')">Hallway 2</button>
+                <button class="add-btn" onclick="addSec('Stairway 1')">Stairway 1</button>
+                <button class="add-btn" onclick="addSec('Stairway 2')">Stairway 2</button>
+                <button class="add-btn" onclick="addSec('Basement')">Basement</button>
+                <button class="add-btn" onclick="addSec('Entry')">Entry</button>
+                <button class="add-btn" onclick="addSec('Front Yard')">Front Yard</button>
+                <button class="add-btn" onclick="addSec('Back Yard')">Back Yard</button>
+                <button class="add-btn" onclick="addSec('Side Yard')">Side Yard</button>
+                <button class="add-btn" onclick="addSec('Garage')">Garage</button>
+                <button class="add-btn" onclick="addSec('Systems')">Systems</button>
+                <button class="add-btn" onclick="addSec('Other')">Other</button>
+            </div>
         </div>
     </div>
-
-    <script>
-        // Register Service Worker for PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/moveout-inspection/service-worker.js')
-                .then(reg => console.log('Service Worker registered'))
-                .catch(err => console.log('Service Worker registration failed'));
-        }
-
-        // Install prompt
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('installPrompt').style.display = 'block';
-        });
-
-        document.getElementById('installBtn').addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-                document.getElementById('installPrompt').style.display = 'none';
-            }
-        });
-
-        document.getElementById('closePrompt').addEventListener('click', () => {
-            document.getElementById('installPrompt').style.display = 'none';
-        });
-
-        // Initialize EmailJS
-        emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");
-
-        let currentPhotoTarget = null;
-        let videoStream = null;
-        let currentZoom = 1;
-        let flashEnabled = false;
-
-        // Default items for each section type
-        const sectionItems = {
-            'Bedroom 1': ['Door/Knob/Lock', 'Closet/Door/Track/Shelving', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen', 'CO/Smoke Detector', 'Switch/Outlet'],
-            'Bedroom 2': ['Door/Knob/Lock', 'Closet/Door/Track/Shelving', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen', 'CO/Smoke Detector', 'Switch/Outlet'],
-            'Bedroom 3': ['Door/Knob/Lock', 'Closet/Door/Track/Shelving', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen', 'CO/Smoke Detector', 'Switch/Outlet'],
-            'Bedroom 4': ['Door/Knob/Lock', 'Closet/Door/Track/Shelving', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen', 'CO/Smoke Detector', 'Switch/Outlet'],
-            'Bedroom 5': ['Door/Knob/Lock', 'Closet/Door/Track/Shelving', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen', 'CO/Smoke Detector', 'Switch/Outlet'],
-            'Bathroom 1': ['Cabinet/Counter/Shelving', 'Door/Knob/Lock', 'Exhaust Fan', 'Flooring/Baseboard', 'Light Fixture', 'Medicine Cabinet/Mirror', 'Plumbing/Drain', 'Shower Door/Rail/Curtain', 'Sink/Faucet', 'Switch/Outlet', 'Toilet', 'Toilet Paper Holder', 'Toilet Turns off appropriately upon flushing', 'Towel Rack', 'Tub/Shower', 'Wall/Ceiling', 'Window/Lock/Screen'],
-            'Bathroom 2': ['Cabinet/Counter/Shelving', 'Door/Knob/Lock', 'Exhaust Fan', 'Flooring/Baseboard', 'Light Fixture', 'Medicine Cabinet/Mirror', 'Plumbing/Drain', 'Shower Door/Rail/Curtain', 'Sink/Faucet', 'Switch/Outlet', 'Toilet', 'Toilet Paper Holder', 'Toilet Turns off appropriately upon flushing', 'Towel Rack', 'Tub/Shower', 'Wall/Ceiling', 'Window/Lock/Screen'],
-            'Bathroom 3': ['Cabinet/Counter/Shelving', 'Door/Knob/Lock', 'Exhaust Fan', 'Flooring/Baseboard', 'Light Fixture', 'Medicine Cabinet/Mirror', 'Plumbing/Drain', 'Shower Door/Rail/Curtain', 'Sink/Faucet', 'Switch/Outlet', 'Toilet', 'Toilet Paper Holder', 'Toilet Turns off appropriately upon flushing', 'Towel Rack', 'Tub/Shower', 'Wall/Ceiling', 'Window/Lock/Screen'],
-            'Bathroom 4': ['Cabinet/Counter/Shelving', 'Door/Knob/Lock', 'Exhaust Fan', 'Flooring/Baseboard', 'Light Fixture', 'Medicine Cabinet/Mirror', 'Plumbing/Drain', 'Shower Door/Rail/Curtain', 'Sink/Faucet', 'Switch/Outlet', 'Toilet', 'Toilet Paper Holder', 'Toilet Turns off appropriately upon flushing', 'Towel Rack', 'Tub/Shower', 'Wall/Ceiling', 'Window/Lock/Screen'],
-            'Kitchen': ['Cabinets/Drawers', 'Counter', 'Dishwasher', 'Faucet/Plumbing', 'Flooring/Baseboard', 'Light Fixture', 'Microwave', 'Oven', 'Range/Fan/Hood/Filter', 'Refrigerator', 'Sink/Disposal', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
-            'Living Room': ['Flooring/Baseboard', 'Light Fixture/Fan', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
-            'Dining Room': ['Flooring/Baseboard', 'Light Fixture/Fan', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
-            'Family Room': ['Flooring/Baseboard', 'Light Fixture/Fan', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
-            'Laundry': ['Flooring/Baseboard', 'Light Fixture', 'Switch/Outlet', 'Wall/Ceiling', 'Other'],
-            'Hallway 1': ['Flooring/Baseboard', 'Light Fixture', 'Smoke/CO Detector', 'Switch/Outlet', 'Wall/Ceiling'],
-            'Hallway 2': ['Flooring/Baseboard', 'Light Fixture', 'Smoke/CO Detector', 'Switch/Outlet', 'Wall/Ceiling'],
-            'Stairway 1': ['Flooring/Baseboard', 'Light Fixture', 'Smoke/CO Detector', 'Switch/Outlet', 'Wall/Ceiling', 'Handrail'],
-            'Stairway 2': ['Flooring/Baseboard', 'Light Fixture', 'Smoke/CO Detector', 'Switch/Outlet', 'Wall/Ceiling', 'Handrail'],
-            'Basement': ['Door/Knob/Lock', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Other', 'Smoke detector', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
-            'Entry': ['Door/Knob/Lock', 'Doorbell', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Other', 'Security/Screen Door', 'Switch/Outlet', 'Wall/Ceiling'],
-            'Front Yard': ['Building Exterior', 'Landscaping', 'Walkway/Driveway', 'Other'],
-            'Back Yard': ['Patio/Deck/Balcony', 'Landscaping', 'Fence', 'Light Fixture', 'Other'],
-            'Side Yard': ['Landscaping', 'Fence', 'Walkway', 'Other'],
-            'Garage': ['Door/Opener', 'Flooring', 'Light Fixture', 'Wall/Ceiling', 'Window/Lock', 'Other'],
-            'Systems': ['Furnace/Heating', 'Furnace Filter Size', 'Air Conditioning', 'Water Heater', 'Electrical Panel', 'Plumbing', 'Other'],
-            'Other': []
-        };
-
-        // GPS and Time tracking
-        function updateDateTime() {
-            const now = new Date();
-            document.getElementById('inspectionDate').textContent = now.toLocaleDateString();
-            document.getElementById('inspectionTime').textContent = now.toLocaleTimeString();
-        }
-
-        function getGPS() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const coords = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
-                        document.getElementById('gpsCoords').textContent = coords;
-                    },
-                    (error) => {
-                        document.getElementById('gpsCoords').textContent = 'Location unavailable';
-                    }
-                );
-            } else {
-                document.getElementById('gpsCoords').textContent = 'GPS not supported';
-            }
-        }
-
-        // Section Management
-        function addSection(type) {
-            const sectionId = `${type.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
-
-            const section = document.createElement('div');
-            section.className = 'section';
-            section.id = sectionId;
-            section.innerHTML = `
-                <div class="section-header">
-                    <h2>${type}</h2>
-                    <button class="remove-section" onclick="removeSection('${sectionId}')">Remove</button>
-                </div>
-                <div class="items-container" id="${sectionId}-items"></div>
-                <button class="add-item-btn" onclick="showAddItemModal('${sectionId}', '${type}')">+ Add Custom Item</button>
-            `;
-
-            document.getElementById('sectionsContainer').appendChild(section);
-
-            const items = sectionItems[type] || [];
-            items.forEach(itemName => {
-                addItem(sectionId, type, itemName);
-            });
-        }
-
-        function removeSection(sectionId) {
-            const section = document.getElementById(sectionId);
-            if (section && confirm('Remove this section?')) {
-                section.remove();
-            }
-        }
-
-        function showAddItemModal(sectionId, sectionName) {
-            const itemName = prompt('Enter custom item name:');
-            if (itemName && itemName.trim()) {
-                addItem(sectionId, sectionName, itemName.trim());
-            }
-        }
-
-        function addItem(sectionId, sectionName, itemName) {
-            const itemId = `${sectionId}-item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-            const itemsContainer = document.getElementById(`${sectionId}-items`);
-
-            const hasMeasurement = itemName.toLowerCase().includes('window covering');
-            const isFurnaceFilter = itemName.toLowerCase().includes('furnace filter size');
-
-            const item = document.createElement('div');
-            item.className = 'item';
-            item.id = itemId;
-            item.innerHTML = `
-                <div class="item-header">
-                    <h4>${itemName}</h4>
-                    <button class="remove-item" onclick="removeItem('${itemId}')">Remove</button>
-                </div>
-                <div class="form-group">
-                    <label>Condition</label>
-                    <select class="condition">
-                        <option value="-">-</option>
-                        <option value="N">N - New</option>
-                        <option value="E">E - Excellent</option>
-                        <option value="S">S - Satisfactory</option>
-                        <option value="F">F - Fair</option>
-                        <option value="P">P - Poor</option>
-                        <option value="!">! - Action</option>
-                        <option value="D">D - Damaged</option>
-                        <option value="TD">TD - Tenant Damaged</option>
-                    </select>
-                </div>
-                ${hasMeasurement ? `
-                <div class="form-group">
-                    <label>Blind Size</label>
-                    <div class="measure-input">
-                        <input type="number" class="blind-width" placeholder="Width" step="0.25"> <span>inches x</span>
-                        <input type="number" class="blind-height" placeholder="Height" step="0.25"> <span>inches</span>
-                    </div>
-                </div>
-                ` : ''}
-                ${isFurnaceFilter ? `
-                <div class="form-group">
-                    <label>Filter Size</label>
-                    <input type="text" class="filter-size" placeholder="e.g., 16x25x1">
-                </div>
-                ` : ''}
-                <div class="form-group">
-                    <label>Action Item</label>
-                    <input type="text" class="action-item" placeholder="Enter action needed">
-                </div>
-                <div class="form-group">
-                    <label>Comments</label>
-                    <textarea class="comments" placeholder="Enter detailed comments"></textarea>
-                </div>
-                <button class="photo-btn" onclick="openCamera('${itemId}')">📷 Take Photo</button>
-                <div class="photos" id="${itemId}-photos"></div>
-            `;
-
-            itemsContainer.appendChild(item);
-        }
-
-        function removeItem(itemId) {
-            const item = document.getElementById(itemId);
-            if (item && confirm('Remove this item?')) {
-                item.remove();
-            }
-        }
-
-        // Camera Functions
-        async function openCamera(itemId) {
-            currentPhotoTarget = itemId;
-            const cameraView = document.getElementById('cameraView');
-            const video = document.getElementById('video');
-
-            try {
-                const constraints = {
-                    video: { 
-                        facingMode: 'environment',
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 }
-                    }
-                };
-
-                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
-                video.srcObject = videoStream;
-                
-                const track = videoStream.getVideoTracks()[0];
-                const capabilities = track.getCapabilities();
-                
-                if (capabilities.zoom) {
-                    currentZoom = track.getSettings().zoom || 1;
-                }
-
-                cameraView.style.display = 'flex';
-            } catch (err) {
-                alert('Camera access denied or not available.');
-                console.error('Camera error:', err);
-            }
-        }
-
-        function closeCamera() {
-            const cameraView = document.getElementById('cameraView');
-            const video = document.getElementById('video');
-            
-            if (videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoStream = null;
-            }
-            
-            video.srcObject = null;
-            cameraView.style.display = 'none';
-            currentPhotoTarget = null;
-            currentZoom = 1;
-            flashEnabled = false;
-            document.getElementById('zoomBtn').textContent = '🔍 Zoom';
-            document.getElementById('flashBtn').textContent = '💡 Flash';
-        }
-
-        function toggleZoom() {
-            if (!videoStream) return;
-            
-            const track = videoStream.getVideoTracks()[0];
-            const capabilities = track.getCapabilities();
-            
-            if (!capabilities.zoom) {
-                alert('Zoom not supported');
-                return;
-            }
-
-            if (currentZoom === 1) {
-                currentZoom = 2;
-            } else if (currentZoom === 2) {
-                currentZoom = 3;
-            } else {
-                currentZoom = 1;
-            }
-
-            const maxZoom = capabilities.zoom.max;
-            const actualZoom = Math.min(currentZoom, maxZoom);
-            
-            track.applyConstraints({
-                advanced: [{ zoom: actualZoom }]
-            });
-
-            document.getElementById('zoomBtn').textContent = `🔍 ${currentZoom}x`;
-        }
-
-        async function toggleFlash() {
-            if (!videoStream) return;
-            
-            const track = videoStream.getVideoTracks()[0];
-            const capabilities = track.getCapabilities();
-            
-            if (!capabilities.torch) {
-                alert('Flash not supported');
-                return;
-            }
-
-            flashEnabled = !flashEnabled;
-            
-            try {
-                await track.applyConstraints({
-                    advanced: [{ torch: flashEnabled }]
-                });
-                
-                document.getElementById('flashBtn').textContent = flashEnabled ? '💡 On' : '💡 Off';
-            } catch (err) {
-                console.error('Flash error:', err);
-                alert('Unable to control flash');
-            }
-        }
-
-        function capturePhoto() {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('canvas');
-            const context = canvas.getContext('2d');
-
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0);
-
-            canvas.toBlob((blob) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    addPhotoToItem(currentPhotoTarget, reader.result);
-                };
-                reader.readAsDataURL(blob);
-            }, 'image/jpeg', 0.9);
-        }
-
-        function addPhotoToItem(itemId, photoData) {
-            const photosContainer = document.getElementById(`${itemId}-photos`);
-            const photoId = `photo-${Date.now()}`;
-
-            const photoDiv = document.createElement('div');
-            photoDiv.className = 'photo';
-            photoDiv.id = photoId;
-            photoDiv.innerHTML = `
-                <img src="${photoData}" alt="Inspection photo">
-                <button onclick="removePhoto('${photoId}')">×</button>
-            `;
-
-            photosContainer.appendChild(photoDiv);
-        }
-
-        function removePhoto(photoId) {
-            const photo = document.getElementById(photoId);
-            if (photo) {
-                photo.remove();
-            }
-        }
-
-        document.getElementById('captureBtn').addEventListener('click', capturePhoto);
-        document.getElementById('zoomBtn').addEventListener('click', toggleZoom);
-        document.getElementById('flashBtn').addEventListener('click', toggleFlash);
-        document.getElementById('closeCameraBtn').addEventListener('click', closeCamera);
-
-        // Excel Export
-        function exportToExcel() {
-            const wb = XLSX.utils.book_new();
-            
-            const propertyAddress = document.getElementById('propertyAddress').value;
-            const tenantName = document.getElementById('tenantName').value;
-            const inspectorName = document.getElementById('inspectorName').value;
-            const inspectionDate = document.getElementById('inspectionDate').textContent;
-            const inspectionTime = document.getElementById('inspectionTime').textContent;
-
-            const dataTabData = [
-                ['DO NOT MODIFY THIS PAGE. VALUES WILL UPDATE WHEN DOWNLOADING'],
-                [],
-                ['Property Address:', propertyAddress],
-                ['Tenant Name:', tenantName],
-                ['Agent/Inspector:', inspectorName],
-                ['Inspection Date:', inspectionDate],
-                ['Inspection Time:', inspectionTime],
-                [],
-                ['CONDITION KEY:'],
-                ['N = New', 'E = Excellent', 'S = Satisfactory', 'F = Fair'],
-                ['P = Poor', '! = Action', 'D = Damaged', 'TD = Tenant Damaged'],
-                [],
-                [null, null, 'Conditions'],
-                ['Area', 'Details', '\r\nN=New\r\nE=Excellent', '\r\nS=Satisfactory\r\nF=Fair\r\nP=Poor', '! - Action Items', '\r\nD=Damaged\r\nTD=Tenant Damaged', 'Action Item', 'Comments']
-            ];
-
-            const damagesTabData = [
-                ['DO NOT MODIFY THIS PAGE. VALUES WILL UPDATE WHEN DOWNLOADING'],
-                [],
-                ['Property Address:', propertyAddress],
-                ['Tenant Name:', tenantName],
-                ['Agent/Inspector:', inspectorName],
-                ['Inspection Date:', inspectionDate],
-                ['Inspection Time:', inspectionTime],
-                [],
-                ['CONDITION KEY:'],
-                ['P = Poor', '! = Action', 'D = Damaged', 'TD = Tenant Damaged'],
-                [],
-                [null, null, 'Conditions'],
-                ['Area', 'Details', '\r\nN=New\r\nE=Excellent', '\r\nS=Satisfactory\r\nF=Fair\r\nP=Poor', '! - Action Items', '\r\nD=Damaged\r\nTD=Tenant Damaged', 'Action Item', 'Comments']
-            ];
-
-            const sections = document.querySelectorAll('.section');
-            sections.forEach(section => {
-                const sectionName = section.querySelector('h2').textContent;
-                const items = section.querySelectorAll('.item');
-
-                items.forEach(item => {
-                    const itemName = item.querySelector('h4').textContent;
-                    const condition = item.querySelector('.condition').value;
-                    const actionItem = item.querySelector('.action-item').value;
-                    let comments = item.querySelector('.comments').value;
-
-                    const blindWidth = item.querySelector('.blind-width');
-                    const blindHeight = item.querySelector('.blind-height');
-                    if (blindWidth && blindHeight && (blindWidth.value || blindHeight.value)) {
-                        const measurement = `Blind Size: ${blindWidth.value || '?'}" x ${blindHeight.value || '?'}"`;
-                        comments = comments ? `${measurement}. ${comments}` : measurement;
-                    }
-
-                    const filterSize = item.querySelector('.filter-size');
-                    if (filterSize && filterSize.value) {
-                        const size = `Filter Size: ${filterSize.value}`;
-                        comments = comments ? `${size}. ${comments}` : size;
-                    }
-
-                    if (condition !== '-' || comments.trim() || actionItem.trim()) {
-                        let condNE = '-', condSFP = '-', condAction = '-', condDamage = '-';
-                        
-                        if (condition === 'N' || condition === 'E') {
-                            condNE = condition;
-                        } else if (condition === 'S' || condition === 'F' || condition === 'P') {
-                            condSFP = condition;
-                        } else if (condition === '!') {
-                            condAction = condition;
-                        } else if (condition === 'D' || condition === 'TD') {
-                            condDamage = condition;
-                        }
-                        
-                        const row = [
-                            sectionName,
-                            itemName,
-                            condNE,
-                            condSFP,
-                            condAction,
-                            condDamage,
-                            actionItem,
-                            comments
-                        ];
-
-                        dataTabData.push(row);
-
-                        if (condition === 'D' || condition === 'TD' || condition === 'P' || condition === '!') {
-                            damagesTabData.push(row);
-                        }
-                    }
-                });
-            });
-
-            const wsData = XLSX.utils.aoa_to_sheet(dataTabData);
-            XLSX.utils.book_append_sheet(wb, wsData, 'Data');
-
-            const wsDamages = XLSX.utils.aoa_to_sheet(damagesTabData);
-            XLSX.utils.book_append_sheet(wb, wsDamages, 'Damages');
-
-            const date = new Date().toISOString().split('T')[0];
-            const address = propertyAddress.replace(/[^a-z0-9]/gi, '_') || 'property';
-            const filename = `MoveOut_${address}_${date}.xlsx`;
-
-            XLSX.writeFile(wb, filename);
-        }
-
-        // PDF Generation
-        async function generatePDF() {
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('loading').classList.remove('hidden');
-
-            try {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                let yPos = 20;
-
-                pdf.setFontSize(18);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('Move Out Inspection Report', 105, yPos, { align: 'center' });
-                yPos += 10;
-
-                pdf.setFontSize(10);
-                pdf.setFont('helvetica', 'normal');
-                pdf.text('AG Management - 2985 12 Mile Berkley MI, 48073', 105, yPos, { align: 'center' });
-                yPos += 5;
-                pdf.text('(248)335-7368', 105, yPos, { align: 'center' });
-                yPos += 15;
-
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('Property Information', 20, yPos);
-                yPos += 7;
-
-                pdf.setFontSize(10);
-                pdf.setFont('helvetica', 'normal');
-                pdf.text(`Property: ${document.getElementById('propertyAddress').value}`, 20, yPos);
-                yPos += 5;
-                pdf.text(`Tenant: ${document.getElementById('tenantName').value}`, 20, yPos);
-                yPos += 5;
-                pdf.text(`Inspector: ${document.getElementById('inspectorName').value}`, 20, yPos);
-                yPos += 5;
-                pdf.text(`Date: ${document.getElementById('inspectionDate').textContent}`, 20, yPos);
-                yPos += 5;
-                pdf.text(`Time: ${document.getElementById('inspectionTime').textContent}`, 20, yPos);
-                yPos += 5;
-                pdf.text(`GPS: ${document.getElementById('gpsCoords').textContent}`, 20, yPos);
-                yPos += 15;
-
-                const sections = document.querySelectorAll('.section');
-                
-                for (const section of sections) {
-                    const sectionName = section.querySelector('h2').textContent;
-                    const items = section.querySelectorAll('.item');
-
-                    if (items.length === 0) continue;
-
-                    if (yPos > 250) {
-                        pdf.addPage();
-                        yPos = 20;
-                    }
-
-                    pdf.setFontSize(14);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.text(sectionName, 20, yPos);
-                    yPos += 7;
-
-                    for (const item of items) {
-                        const itemName = item.querySelector('h4').textContent;
-                        const condition = item.querySelector('.condition').value;
-                        const actionItem = item.querySelector('.action-item').value;
-                        let comments = item.querySelector('.comments').value;
-                        const photos = item.querySelectorAll('.photos img');
-
-                        const blindWidth = item.querySelector('.blind-width');
-                        const blindHeight = item.querySelector('.blind-height');
-                        if (blindWidth && blindHeight && (blindWidth.value || blindHeight.value)) {
-                            const measurement = `Blind Size: ${blindWidth.value || '?'}" x ${blindHeight.value || '?'}"`;
-                            comments = comments ? `${measurement}. ${comments}` : measurement;
-                        }
-
-                        const filterSize = item.querySelector('.filter-size');
-                        if (filterSize && filterSize.value) {
-                            const size = `Filter Size: ${filterSize.value}`;
-                            comments = comments ? `${size}. ${comments}` : size;
-                        }
-
-                        if (yPos > 240) {
-                            pdf.addPage();
-                            yPos = 20;
-                        }
-
-                        pdf.setFontSize(11);
-                        pdf.setFont('helvetica', 'bold');
-                        pdf.text(`• ${itemName}`, 25, yPos);
-                        yPos += 5;
-
-                        pdf.setFontSize(9);
-                        pdf.setFont('helvetica', 'normal');
-                        
-                        if (condition !== '-') {
-                            pdf.text(`  Condition: ${condition}`, 30, yPos);
-                            yPos += 4;
-                        }
-
-                        if (actionItem.trim()) {
-                            pdf.text(`  Action: ${actionItem}`, 30, yPos);
-                            yPos += 4;
-                        }
-
-                        if (comments.trim()) {
-                            const lines = pdf.splitTextToSize(`  Comments: ${comments}`, 160);
-                            pdf.text(lines, 30, yPos);
-                            yPos += (lines.length * 4);
-                        }
-
-                        if (photos.length > 0) {
-                            yPos += 2;
-                            let xPos = 30;
-                            for (const photo of photos) {
-                                if (xPos > 160) {
-                                    xPos = 30;
-                                    yPos += 40;
-                                }
-                                if (yPos > 240) {
-                                    pdf.addPage();
-                                    yPos = 20;
-                                    xPos = 30;
-                                }
-                                
-                                try {
-                                    pdf.addImage(photo.src, 'JPEG', xPos, yPos, 35, 35);
-                                    xPos += 40;
-                                } catch (e) {
-                                    console.error('Error adding image:', e);
-                                }
-                            }
-                            yPos += 40;
-                        }
-
-                        yPos += 5;
-                    }
-                }
-
-                const date = new Date().toISOString().split('T')[0];
-                const address = document.getElementById('propertyAddress').value.replace(/[^a-z0-9]/gi, '_') || 'property';
-                pdf.save(`MoveOut_Report_${address}_${date}.pdf`);
-
-            } catch (error) {
-                alert('Error generating PDF: ' + error.message);
-                console.error(error);
-            } finally {
-                document.getElementById('overlay').style.display = 'none';
-                document.getElementById('loading').classList.add('hidden');
-            }
-        }
-
-        // Email Function - Sends to N8N
-async function emailReport() {
-    document.getElementById('overlay').style.display = 'block';
-    document.getElementById('loading').classList.remove('hidden');
-
-    try {
-        const propertyAddress = document.getElementById('propertyAddress').value;
-        const tenantName = document.getElementById('tenantName').value;
-        const inspectorName = document.getElementById('inspectorName').value;
-        const inspectionDate = document.getElementById('inspectionDate').textContent;
-        const inspectionTime = document.getElementById('inspectionTime').textContent;
-        const gpsLocation = document.getElementById('gpsCoords').textContent;
-
-        // Collect all inspection data
-        const inspectionData = {
-            property_address: propertyAddress,
-            tenant_name: tenantName,
-            inspector_name: inspectorName,
-            inspection_date: inspectionDate,
-            inspection_time: inspectionTime,
-            gps_location: gpsLocation,
-            sections: []
-        };
-
-        // Gather all sections and items
-        const sections = document.querySelectorAll('.section');
-        sections.forEach(section => {
-            const sectionName = section.querySelector('h2').textContent;
-            const items = section.querySelectorAll('.item');
-            
-            const sectionData = {
-                section_name: sectionName,
-                items: []
-            };
-
-            items.forEach(item => {
-                const itemName = item.querySelector('h4').textContent;
-                const condition = item.querySelector('.condition').value;
-                const actionItem = item.querySelector('.action-item').value;
-                let comments = item.querySelector('.comments').value;
-
-                // Add blind measurements if present
-                const blindWidth = item.querySelector('.blind-width');
-                const blindHeight = item.querySelector('.blind-height');
-                if (blindWidth && blindHeight && (blindWidth.value || blindHeight.value)) {
-                    const measurement = `Blind Size: ${blindWidth.value || '?'}" x ${blindHeight.value || '?'}"`;
-                    comments = comments ? `${measurement}. ${comments}` : measurement;
-                }
-
-                // Add filter size if present
-                const filterSize = item.querySelector('.filter-size');
-                if (filterSize && filterSize.value) {
-                    const size = `Filter Size: ${filterSize.value}`;
-                    comments = comments ? `${size}. ${comments}` : size;
-                }
-
-                // Collect photos for this item
-                const photoElements = item.querySelectorAll('.photos img');
-                const photos = [];
-                photoElements.forEach(photo => {
-                    photos.push(photo.src); // Base64 encoded image
-                });
-
-                // Only include items that have data
-                if (condition !== '-' || comments.trim() || actionItem.trim() || photos.length > 0) {
-                    // Determine condition columns for Excel
-                    let condNE = '-', condSFP = '-', condAction = '-', condDamage = '-';
-                    
-                    if (condition === 'N' || condition === 'E') {
-                        condNE = condition;
-                    } else if (condition === 'S' || condition === 'F' || condition === 'P') {
-                        condSFP = condition;
-                    } else if (condition === '!') {
-                        condAction = condition;
-                    } else if (condition === 'D' || condition === 'TD') {
-                        condDamage = condition;
-                    }
-
-                    sectionData.items.push({
-                        item_name: itemName,
-                        condition: condition,
-                        condition_ne: condNE,
-                        condition_sfp: condSFP,
-                        condition_action: condAction,
-                        condition_damage: condDamage,
-                        action_item: actionItem,
-                        comments: comments,
-                        photos: photos,
-                        is_damage: (condition === 'D' || condition === 'TD' || condition === 'P' || condition === '!')
-                    });
-                }
-            });
-
-            if (sectionData.items.length > 0) {
-                inspectionData.sections.push(sectionData);
-            }
-        });
-
-        // Send to N8N webhook
-        const N8N_WEBHOOK_URL = 'https://n8n.335.rent/webhook-test/moveout-inspection';
-        
-        const response = await fetch(N8N_WEBHOOK_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(inspectionData)
-        });
-
-        if (response.ok) {
-            alert('✅ Report sent successfully! PDF and Excel reports will be emailed to property managers.');
-        } else {
-            throw new Error('Failed to send report');
-        }
-
-    } catch (error) {
-        alert('❌ Error sending report: ' + error.message);
-        console.error('Error:', error);
-    } finally {
-        document.getElementById('overlay').style.display = 'none';
-        document.getElementById('loading').classList.add('hidden');
-    }
-}
+<script>
+const URL='https://n8n.335.rent/webhook-test/moveout-inspection';
+const items={'Bedroom 1':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 2':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 3':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 4':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 5':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bathroom 1':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 2':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 3':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 4':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Kitchen':['Cabinets/Drawers','Counter','Dishwasher','Faucet/Plumbing','Flooring/Baseboard','Light Fixture','Microwave','Oven','Range/Fan/Hood/Filter','Refrigerator','Sink/Disposal','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Living Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Dining Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Family Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Laundry':['Flooring/Baseboard','Light Fixture','Switch/Outlet','Wall/Ceiling','Other'],'Hallway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Hallway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Stairway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling','Handrail'],'Stairway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling','Handrail'],'Basement':['Door/Knob/Lock','Flooring/Baseboard','Light Fixture/Fan','Other','Smoke detector','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Entry':['Door/Knob/Lock','Doorbell','Flooring/Baseboard','Light Fixture/Fan','Other','Security/Screen Door','Switch/Outlet','Wall/Ceiling'],'Front Yard':['Building Exterior','Landscaping','Walkway/Driveway','Other'],'Back Yard':['Patio/Deck/Balcony','Landscaping','Fence','Light Fixture','Other'],'Side Yard':['Landscaping','Fence','Walkway','Other'],'Garage':['Door/Opener','Flooring','Light Fixture','Wall/Ceiling','Window/Lock','Other'],'Systems':['Furnace/Heating','Furnace Filter Size','Air Conditioning','Water Heater','Electrical Panel','Plumbing','Other'],'Other':[]};
+let tgt=null,str=null,zm=1,fl=false;
+function startNew(){document.getElementById('landingPage').style.display='none';document.getElementById('formPage').style.display='block';upd();gps();}
+function goHome(){if(confirm('Unsaved changes will be lost')){document.getElementById('formPage').style.display='none';document.getElementById('landingPage').style.display='block';clr();loadHist();}}
+function clr(){document.getElementById('addr').value='';document.getElementById('tenant').value='';document.getElementById('inspector').value='';document.getElementById('sections').innerHTML='';}
+function upd(){const n=new Date();document.getElementById('date').textContent=n.toLocaleDateString();document.getElementById('time').textContent=n.toLocaleTimeString();}
+function gps(){if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{document.getElementById('gps').textContent=`${p.coords.latitude.toFixed(6)}, ${p.coords.longitude.toFixed(6)}`;},()=>{document.getElementById('gps').textContent='Unavailable';});}else{document.getElementById('gps').textContent='Not supported';}}
+function addSec(t){const id=`s-${Date.now()}`,s=document.createElement('div');s.className='section';s.id=id;s.innerHTML=`<div class="section-header"><h2>${t}</h2><button class="remove-section" onclick="remSec('${id}')">Remove</button></div><div id="${id}-i"></div><button class="add-item-btn" onclick="addCustom('${id}','${t}')">+ Custom Item</button>`;document.getElementById('sections').appendChild(s);(items[t]||[]).forEach(n=>addItm(id,n));}
+function remSec(id){if(confirm('Remove?'))document.getElementById(id).remove();}
+function addCustom(sid,sn){const n=prompt('Item name:');if(n&&n.trim())addItm(sid,n.trim());}
+function addItm(sid,n){const id=`i-${Date.now()}-${Math.random().toString(36).substr(2,9)}`,c=document.getElementById(`${sid}-i`),m=n.toLowerCase().includes('window covering'),f=n.toLowerCase().includes('filter'),d=document.createElement('div');d.className='item';d.id=id;d.innerHTML=`<div class="item-header"><h4>${n}</h4><button class="remove-item" onclick="remItm('${id}')">Remove</button></div><div class="form-group"><label>Condition</label><select class="cond"><option value="-">-</option><option value="N">N-New</option><option value="E">E-Excellent</option><option value="S">S-Satisfactory</option><option value="F">F-Fair</option><option value="P">P-Poor</option><option value="!">!-Action</option><option value="D">D-Damaged</option><option value="TD">TD-Tenant Damaged</option></select></div>${m?'<div class="form-group"><label>Blind Size</label><div class="measure-input"><input type="number" class="bw" placeholder="Width" step="0.25"><span>x</span><input type="number" class="bh" placeholder="Height" step="0.25"><span>in</span></div></div>':''}${f?'<div class="form-group"><label>Filter Size</label><input type="text" class="fs" placeholder="16x25x1"></div>':''}<div class="form-group"><label>Action</label><input type="text" class="act" placeholder="Action needed"></div><div class="form-group"><label>Comments</label><textarea class="com" placeholder="Comments"></textarea></div><button class="photo-btn" onclick="cam('${id}')">📷 Photo</button><div class="photos" id="${id}-p"></div>`;c.appendChild(d);}
+function remItm(id){if(confirm('Remove?'))document.getElementById(id).remove();}
+async function cam(id){tgt=id;const v=document.getElementById('cameraView'),vid=document.getElementById('video');try{str=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}});vid.srcObject=str;v.style.display='flex';}catch(e){alert('Camera error');}}
+function closeCam(){const v=document.getElementById('cameraView'),vid=document.getElementById('video');if(str){str.getTracks().forEach(t=>t.stop());str=null;}vid.srcObject=null;v.style.display='none';tgt=null;zm=1;fl=false;}
+function cap(){const vid=document.getElementById('video'),c=document.getElementById('canvas'),ctx=c.getContext('2d');c.width=vid.videoWidth;c.height=vid.videoHeight;ctx.drawImage(vid,0,0);c.toBlob(b=>{const r=new FileReader();r.onloadend=()=>addPh(tgt,r.result);r.readAsDataURL(b);},'image/jpeg',0.9);}
+function addPh(id,d){const p=document.getElementById(`${id}-p`),pid=`p-${Date.now()}`,dv=document.createElement('div');dv.className='photo';dv.id=pid;dv.innerHTML=`<img src="${d}"><button onclick="remPh('${pid}')">×</button>`;p.appendChild(dv);}
+function remPh(id){document.getElementById(id).remove();}
+document.getElementById('captureBtn').onclick=cap;
+document.getElementById('closeCameraBtn').onclick=closeCam;
+async function submit(){const a=document.getElementById('addr').value,t=document.getElementById('tenant').value,i=document.getElementById('inspector').value;if(!a||!t||!i){alert('Fill required fields');return;}document.getElementById('overlay').style.display='block';document.getElementById('loading').classList.remove('hidden');try{const dt=document.getElementById('date').textContent,tm=document.getElementById('time').textContent,g=document.getElementById('gps').textContent,data={property_address:a,tenant_name:t,inspector_name:i,inspection_date:dt,inspection_time:tm,gps_location:g,sections:[]};document.querySelectorAll('.section').forEach(s=>{const sn=s.querySelector('h2').textContent,sd={section_name:sn,items:[]};s.querySelectorAll('.item').forEach(it=>{const nm=it.querySelector('h4').textContent,cd=it.querySelector('.cond').value,ac=it.querySelector('.act').value;let cm=it.querySelector('.com').value;const bw=it.querySelector('.bw'),bh=it.querySelector('.bh');if(bw&&bh&&(bw.value||bh.value))cm=`Blind:${bw.value||'?'}x${bh.value||'?'}.${cm}`;const fs=it.querySelector('.fs');if(fs&&fs.value)cm=`Filter:${fs.value}.${cm}`;const ph=[];it.querySelectorAll('.photos img').forEach(p=>ph.push(p.src));if(cd!=='-'||cm.trim()||ac.trim()||ph.length>0){let ne='-',sfp='-',act='-',dmg='-';if(cd==='N'||cd==='E')ne=cd;else if(cd==='S'||cd==='F'||cd==='P')sfp=cd;else if(cd==='!')act=cd;else if(cd==='D'||cd==='TD')dmg=cd;sd.items.push({item_name:nm,condition:cd,condition_ne:ne,condition_sfp:sfp,condition_action:act,condition_damage:dmg,action_item:ac,comments:cm,photos:ph,is_damage:cd==='D'||cd==='TD'||cd==='P'||cd==='!'});}});if(sd.items.length>0)data.sections.push(sd);});const xl=genXL(data),pdf=await genPDF(data);data.excel_file=xl;data.pdf_file=pdf;const r=await fetch(URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(r.ok){saveHist(data);alert('✅ Submitted!');goHome();}else{throw new Error('Failed');}}catch(e){alert('❌ Error: '+e.message);}finally{document.getElementById('overlay').style.display='none';document.getElementById('loading').classList.add('hidden');}}
+function genXL(d){const wb=XLSX.utils.book_new(),dd=[['DO NOT MODIFY'],[],'Property: '+d.property_address,['Tenant: '+d.tenant_name],['Inspector: '+d.inspector_name],['Date: '+d.inspection_date],[],['LEGEND'],['N=New','E=Excellent','S=Satisfactory','F=Fair'],['P=Poor','!=Action','D=Damaged','TD=Tenant Damaged'],[],['Area','Item','N/E','S/F/P','!','D/TD','Action','Comments']],dm=[['DAMAGES'],[],...dd.slice(2,12)];d.sections.forEach(s=>s.items.forEach(it=>{const r=[s.section_name,it.item_name,it.condition_ne,it.condition_sfp,it.condition_action,it.condition_damage,it.action_item,it.comments];dd.push(r);if(it.is_damage)dm.push(r);}));XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(dd),'Data');XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(dm),'Damages');return XLSX.write(wb,{bookType:'xlsx',type:'base64'});}
+async function genPDF(d){const{jsPDF}=window.jspdf,pdf=new jsPDF(),props=[[`Property: ${d.property_address}`],[`Tenant: ${d.tenant_name}`],[`Inspector: ${d.inspector_name}`],[`Date: ${d.inspection_date}`]];let y=20;pdf.setFontSize(16);pdf.text('Move Out Inspection',105,y,{align:'center'});y+=10;pdf.setFontSize(10);pdf.text('AG Management - (248)335-7368',105,y,{align:'center'});y+=15;props.forEach(p=>{pdf.text(p[0],20,y);y+=5;});y+=10;for(const s of d.sections){if(y>250){pdf.addPage();y=20;}pdf.setFontSize(14);pdf.text(s.section_name,20,y);y+=7;for(const it of s.items){if(y>240){pdf.addPage();y=20;}pdf.setFontSize(10);pdf.text(`• ${it.item_name}`,25,y);y+=5;if(it.condition!=='-'){pdf.text(`  Cond: ${it.condition}`,30,y);y+=4;}if(it.action_item.trim()){pdf.text(`  Action: ${it.action_item}`,30,y);y+=4;}if(it.comments.trim()){const l=pdf.splitTextToSize(`  ${it.comments}`,160);pdf.text(l,30,y);y+=l.length*4;}if(it.photos.length>0){let x=30;for(const p of it.photos){if(x>160){x=30;y+=40;}if(y>240){pdf.addPage();y=20;x=30;}try{pdf.addImage(p,'JPEG',x,y,35,35);x+=40;}catch(e){}}y+=40;}y+=5;}}return pdf.output('datauristring').split(',')[1];}
+function saveHist(d){const h=JSON.parse(localStorage.getItem('inspections')||'[]');h.unshift({...d,id:Date.now(),timestamp:new Date().toISOString()});localStorage.setItem('inspections',JSON.stringify(h));}
+function loadHist(){const h=JSON.parse(localStorage.getItem('inspections')||'[]'),c=document.getElementById('historyContainer');if(h.length===0){c.innerHTML='<div class="history-empty"><p>No inspections yet</p><p>Start your first inspection above!</p></div>';return;}c.innerHTML=h.map(r=>`<div class="report-card"><h3>${r.property_address}</h3><p>Tenant: ${r.tenant_name}</p><p>Inspector: ${r.inspector_name}</p><p>Date: ${r.inspection_date} ${r.inspection_time}</p><div class="report-card-actions"><button class="resend-btn" onclick="resend(${r.id})">📧 Resend Report</button></div></div>`).join('');}
+async function resend(id){const h=JSON.parse(localStorage.getItem('inspections')||'[]'),r=h.find(x=>x.id===id);if(!r){alert('Report not found');return;}document.getElementById('overlay').style.display='block';document.getElementById('loading').classList.remove('hidden');try{const res=await fetch(URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(r)});if(res.ok)alert('✅ Resent!');else throw new Error('Failed');}catch(e){alert('❌ Error: '+e.message);}finally{document.getElementById('overlay').style.display='none';document.getElementById('loading').classList.add('hidden');}}
+loadHist();
+</script>
+</body>
+</html>
