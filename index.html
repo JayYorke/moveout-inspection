@@ -2,73 +2,100 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Move Out Inspection">
+    <meta name="theme-color" content="#007bff">
     <title>Move Out Inspection - AG Management</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
         body { 
-            font-family: Arial, sans-serif; 
-            padding: 20px; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            padding: 10px; 
             background-color: #f5f5f5; 
             max-width: 1200px; 
-            margin: 0 auto; 
+            margin: 0 auto;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
         
         .header { 
             background-color: white; 
-            padding: 20px; 
+            padding: 15px; 
             border-radius: 8px; 
-            margin-bottom: 20px; 
+            margin-bottom: 15px; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
         }
         
-        .company-info h1 { color: #333; margin-bottom: 10px; }
-        .company-info p { color: #666; margin: 5px 0; }
+        .company-info h1 { 
+            color: #333; 
+            margin-bottom: 8px;
+            font-size: 1.5em;
+        }
+        .company-info p { 
+            color: #666; 
+            margin: 3px 0;
+            font-size: 0.9em;
+        }
         
         .location-info { 
             background-color: #e8f4f8; 
-            padding: 15px; 
+            padding: 12px; 
             border-radius: 4px; 
-            margin-bottom: 20px; 
-            font-size: 14px; 
+            margin-bottom: 15px; 
+            font-size: 0.85em;
             border-left: 4px solid #007bff; 
         }
         
         .basic-info { 
             background-color: white; 
-            padding: 20px; 
+            padding: 15px; 
             border-radius: 8px; 
-            margin-bottom: 20px; 
+            margin-bottom: 15px; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
         }
         
-        .form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 12px; }
         
         label { 
             display: block; 
             margin-bottom: 5px; 
-            font-weight: bold; 
-            color: #333; 
+            font-weight: 600; 
+            color: #333;
+            font-size: 0.9em;
         }
         
         input, textarea, select { 
             width: 100%; 
-            padding: 10px; 
+            padding: 12px; 
             border: 1px solid #ddd; 
-            border-radius: 4px; 
-            font-size: 14px; 
+            border-radius: 8px; 
+            font-size: 16px;
+            font-family: inherit;
         }
         
-        textarea { min-height: 60px; }
+        textarea { 
+            min-height: 80px;
+            resize: vertical;
+        }
         
         .section { 
             background-color: white; 
-            padding: 20px; 
+            padding: 15px; 
             border-radius: 8px; 
-            margin-bottom: 20px; 
+            margin-bottom: 15px; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
         }
         
@@ -76,27 +103,32 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            margin-bottom: 15px; 
-            padding-bottom: 10px; 
+            margin-bottom: 12px; 
+            padding-bottom: 8px; 
             border-bottom: 2px solid #007bff; 
         }
         
-        .section-header h2 { color: #007bff; }
+        .section-header h2 { 
+            color: #007bff;
+            font-size: 1.3em;
+        }
         
         .remove-section { 
             background: #dc3545; 
             color: white; 
             border: none; 
-            padding: 8px 15px; 
-            border-radius: 4px; 
-            cursor: pointer; 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
         }
         
         .item { 
             background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 4px; 
-            margin-bottom: 15px; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-bottom: 12px; 
             border-left: 3px solid #28a745; 
         }
         
@@ -107,29 +139,41 @@
             margin-bottom: 10px; 
         }
         
-        .item-header h4 { color: #333; }
+        .item-header h4 { 
+            color: #333;
+            font-size: 1em;
+        }
         
         .remove-item { 
             background: #6c757d; 
             color: white; 
             border: none; 
-            padding: 5px 10px; 
-            border-radius: 4px; 
+            padding: 6px 10px; 
+            border-radius: 6px; 
             cursor: pointer; 
-            font-size: 12px; 
+            font-size: 0.8em;
+            font-weight: 600;
         }
         
         .photo-btn { 
             background: #007bff; 
             color: white; 
             border: none; 
-            padding: 10px 15px; 
-            border-radius: 4px; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
             cursor: pointer; 
-            margin: 10px 5px 10px 0; 
+            margin: 10px 5px 10px 0;
+            font-size: 0.95em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .photo-btn:hover { background: #0056b3; }
+        .photo-btn:active { 
+            background: #0056b3; 
+            transform: scale(0.98);
+        }
         
         .photos { 
             display: grid; 
@@ -151,39 +195,45 @@
             width: 100%; 
             height: 100%; 
             object-fit: cover; 
-            border-radius: 4px; 
+            border-radius: 8px; 
         }
         
         .photo button { 
             position: absolute; 
-            top: -5px; 
-            right: -5px; 
+            top: -8px; 
+            right: -8px; 
             background: #dc3545; 
             color: white; 
             border: none; 
             border-radius: 50%; 
-            width: 24px; 
-            height: 24px; 
+            width: 28px; 
+            height: 28px; 
             cursor: pointer; 
-            font-weight: bold; 
+            font-weight: bold;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .add-section-btns { 
             background: white; 
-            padding: 20px; 
+            padding: 15px; 
             border-radius: 8px; 
             margin-bottom: 20px; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
         }
         
         .add-section-btns h3 { 
-            margin-bottom: 15px; 
-            color: #333; 
+            margin-bottom: 12px; 
+            color: #333;
+            font-size: 1.2em;
         }
         
         .add-btn-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
             gap: 10px; 
         }
         
@@ -191,71 +241,84 @@
             background: #28a745; 
             color: white; 
             border: none; 
-            padding: 12px 20px; 
-            border-radius: 4px; 
+            padding: 14px 16px; 
+            border-radius: 8px; 
             cursor: pointer; 
-            font-size: 14px; 
-            font-weight: bold; 
+            font-size: 0.9em;
+            font-weight: 600;
         }
         
-        .add-btn:hover { background: #218838; }
+        .add-btn:active { 
+            background: #218838;
+            transform: scale(0.98);
+        }
         
         .add-item-btn { 
             background: #17a2b8; 
             color: white; 
             border: none; 
-            padding: 10px 20px; 
-            border-radius: 4px; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
             cursor: pointer; 
-            margin-top: 10px; 
+            margin-top: 10px;
+            font-size: 0.9em;
+            font-weight: 600;
+            width: 100%;
+        }
+        
+        .add-item-btn:active {
+            background: #138496;
+            transform: scale(0.98);
         }
         
         .action-btns { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 10px; 
+            grid-template-columns: 1fr; 
+            gap: 12px; 
             background: white; 
-            padding: 20px; 
+            padding: 15px; 
             border-radius: 8px; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .action-btns button { 
-            padding: 15px; 
+            padding: 16px; 
             border: none; 
-            border-radius: 4px; 
+            border-radius: 8px; 
             cursor: pointer; 
-            font-size: 16px; 
-            font-weight: bold; 
-            color: white; 
+            font-size: 1em;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .action-btns button:active {
+            transform: scale(0.98);
         }
         
         .export { background: #28a745; }
-        .export:hover { background: #218838; }
         .submit { background: #007bff; }
-        .submit:hover { background: #0056b3; }
         .pdf-btn { background: #dc3545; }
-        .pdf-btn:hover { background: #c82333; }
         
         .legend { 
             background: #fff3cd; 
-            padding: 15px; 
-            border-radius: 4px; 
-            margin-bottom: 20px; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-bottom: 15px; 
             border: 1px solid #ffc107; 
         }
         
         .legend h4 { 
-            margin-bottom: 10px; 
-            color: #856404; 
+            margin-bottom: 8px; 
+            color: #856404;
+            font-size: 1em;
         }
         
         .legend-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-            gap: 8px; 
-            font-size: 13px; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 6px; 
+            font-size: 0.85em;
         }
         
         video { 
@@ -277,10 +340,11 @@
             transform: translate(-50%, -50%); 
             background: white; 
             padding: 30px; 
-            border-radius: 8px; 
+            border-radius: 12px; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
             z-index: 1001; 
-            text-align: center; 
+            text-align: center;
+            min-width: 200px;
         }
         
         .overlay { 
@@ -311,7 +375,8 @@
         .camera-view video { 
             display: block; 
             max-width: 100%; 
-            max-height: calc(100vh - 150px); 
+            max-height: calc(100vh - 150px);
+            width: 100%;
         }
         
         .camera-controls { 
@@ -319,39 +384,105 @@
             bottom: 20px; 
             left: 50%; 
             transform: translateX(-50%); 
-            display: flex; 
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 0 20px;
+            width: 100%;
+            max-width: 400px;
         }
         
         .camera-btn { 
             background: white; 
             color: black; 
             border: none; 
-            padding: 15px 30px; 
+            padding: 14px 20px; 
             border-radius: 50px; 
             cursor: pointer; 
-            font-size: 16px; 
-            font-weight: bold; 
+            font-size: 0.9em;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
         
-        .capture-btn { background: #007bff; color: white; }
+        .camera-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .capture-btn { 
+            background: #007bff; 
+            color: white;
+            grid-column: 1 / -1;
+            font-size: 1.1em;
+        }
         .flash-btn { background: #ffc107; color: black; }
         .zoom-btn { background: #17a2b8; color: white; }
-        .close-camera-btn { background: #dc3545; color: white; }
+        .close-camera-btn { 
+            background: #dc3545; 
+            color: white;
+            grid-column: 1 / -1;
+        }
         
         .measure-input { 
             display: flex; 
-            gap: 10px; 
+            gap: 8px; 
             align-items: center; 
-            margin: 10px 0; 
+            margin: 8px 0;
+            flex-wrap: wrap;
         }
         
         .measure-input input { 
-            width: 100px; 
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #007bff;
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+        }
+
+        .install-prompt button {
+            background: white;
+            color: #007bff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 10px;
+            width: 100%;
+            font-size: 1em;
+        }
+
+        .install-prompt .close-prompt {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            margin-left: 10px;
         }
         
+        @media (min-width: 768px) {
+            .camera-controls {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .capture-btn, .close-camera-btn {
+                grid-column: auto;
+            }
+            .action-btns {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .legend-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
         @media print { 
             .add-section-btns, .action-btns, .photo-btn, .remove-section, .remove-item, .add-item-btn { 
                 display: none; 
@@ -366,13 +497,20 @@
         <p>Please wait while we create your reports</p>
     </div>
 
+    <div class="install-prompt" id="installPrompt">
+        <h4>📱 Install This App</h4>
+        <p>Add Move Out Inspection to your home screen for quick access and offline use!</p>
+        <button id="installBtn">Install App</button>
+        <button class="close-prompt" id="closePrompt">Not Now</button>
+    </div>
+
     <div class="camera-view" id="cameraView">
         <video id="video" autoplay playsinline></video>
         <canvas id="canvas"></canvas>
         <div class="camera-controls">
-            <button class="camera-btn capture-btn" id="captureBtn">📷 Capture Photo</button>
-            <button class="camera-btn zoom-btn" id="zoomBtn">🔍 Zoom In</button>
-            <button class="camera-btn flash-btn" id="flashBtn">💡 Flash Off</button>
+            <button class="camera-btn capture-btn" id="captureBtn">📷 Capture</button>
+            <button class="camera-btn zoom-btn" id="zoomBtn">🔍 Zoom</button>
+            <button class="camera-btn flash-btn" id="flashBtn">💡 Flash</button>
             <button class="camera-btn close-camera-btn" id="closeCameraBtn">✕ Close</button>
         </div>
     </div>
@@ -388,9 +526,9 @@
     </div>
 
     <div class="location-info" id="locationInfo">
-        <strong>📍 GPS Location:</strong> <span id="gpsCoords">Getting location...</span><br>
-        <strong>📅 Inspection Date:</strong> <span id="inspectionDate"></span><br>
-        <strong>🕐 Inspection Time:</strong> <span id="inspectionTime"></span>
+        <strong>📍 GPS:</strong> <span id="gpsCoords">Getting location...</span><br>
+        <strong>📅 Date:</strong> <span id="inspectionDate"></span><br>
+        <strong>🕐 Time:</strong> <span id="inspectionTime"></span>
     </div>
 
     <div class="basic-info">
@@ -425,9 +563,9 @@
     <div id="sectionsContainer"></div>
 
     <div class="action-btns">
-        <button class="pdf-btn" onclick="generatePDF()">📄 Download PDF Report</button>
-        <button class="export" onclick="exportToExcel()">📊 Download Excel Report</button>
-        <button class="submit" onclick="emailReport()">📧 Complete & Email Report</button>
+        <button class="pdf-btn" onclick="generatePDF()">📄 PDF Report</button>
+        <button class="export" onclick="exportToExcel()">📊 Excel Report</button>
+        <button class="submit" onclick="emailReport()">📧 Email Report</button>
     </div>
 
     <div class="add-section-btns">
@@ -463,6 +601,34 @@
     </div>
 
     <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed'));
+        }
+
+        // Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').style.display = 'block';
+        });
+
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                document.getElementById('installPrompt').style.display = 'none';
+            }
+        });
+
+        document.getElementById('closePrompt').addEventListener('click', () => {
+            document.getElementById('installPrompt').style.display = 'none';
+        });
+
         // Initialize EmailJS
         emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");
 
@@ -534,7 +700,7 @@
             section.innerHTML = `
                 <div class="section-header">
                     <h2>${type}</h2>
-                    <button class="remove-section" onclick="removeSection('${sectionId}')">Remove Section</button>
+                    <button class="remove-section" onclick="removeSection('${sectionId}')">Remove</button>
                 </div>
                 <div class="items-container" id="${sectionId}-items"></div>
                 <button class="add-item-btn" onclick="showAddItemModal('${sectionId}', '${type}')">+ Add Custom Item</button>
@@ -542,7 +708,6 @@
 
             document.getElementById('sectionsContainer').appendChild(section);
 
-            // Add default items for this section type
             const items = sectionItems[type] || [];
             items.forEach(itemName => {
                 addItem(sectionId, type, itemName);
@@ -551,7 +716,7 @@
 
         function removeSection(sectionId) {
             const section = document.getElementById(sectionId);
-            if (section && confirm('Are you sure you want to remove this section?')) {
+            if (section && confirm('Remove this section?')) {
                 section.remove();
             }
         }
@@ -567,7 +732,6 @@
             const itemId = `${sectionId}-item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             const itemsContainer = document.getElementById(`${sectionId}-items`);
 
-            // Check if this is a Window Covering item to add measurement tool
             const hasMeasurement = itemName.toLowerCase().includes('window covering');
             const isFurnaceFilter = itemName.toLowerCase().includes('furnace filter size');
 
@@ -595,10 +759,10 @@
                 </div>
                 ${hasMeasurement ? `
                 <div class="form-group">
-                    <label>Blind Size (Width x Height)</label>
+                    <label>Blind Size</label>
                     <div class="measure-input">
-                        <input type="number" class="blind-width" placeholder="Width" step="0.25"> inches x
-                        <input type="number" class="blind-height" placeholder="Height" step="0.25"> inches
+                        <input type="number" class="blind-width" placeholder="Width" step="0.25"> <span>inches x</span>
+                        <input type="number" class="blind-height" placeholder="Height" step="0.25"> <span>inches</span>
                     </div>
                 </div>
                 ` : ''}
@@ -648,18 +812,16 @@
                 videoStream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = videoStream;
                 
-                // Get video track for zoom support
                 const track = videoStream.getVideoTracks()[0];
                 const capabilities = track.getCapabilities();
                 
-                // Check if zoom is supported
                 if (capabilities.zoom) {
                     currentZoom = track.getSettings().zoom || 1;
                 }
 
                 cameraView.style.display = 'flex';
             } catch (err) {
-                alert('Camera access denied or not available. Please check your browser settings.');
+                alert('Camera access denied or not available.');
                 console.error('Camera error:', err);
             }
         }
@@ -678,6 +840,8 @@
             currentPhotoTarget = null;
             currentZoom = 1;
             flashEnabled = false;
+            document.getElementById('zoomBtn').textContent = '🔍 Zoom';
+            document.getElementById('flashBtn').textContent = '💡 Flash';
         }
 
         function toggleZoom() {
@@ -687,11 +851,10 @@
             const capabilities = track.getCapabilities();
             
             if (!capabilities.zoom) {
-                alert('Zoom not supported on this device');
+                alert('Zoom not supported');
                 return;
             }
 
-            // Cycle through zoom levels: 1x, 2x, 3x, back to 1x
             if (currentZoom === 1) {
                 currentZoom = 2;
             } else if (currentZoom === 2) {
@@ -707,7 +870,7 @@
                 advanced: [{ zoom: actualZoom }]
             });
 
-            document.getElementById('zoomBtn').textContent = `🔍 Zoom ${currentZoom}x`;
+            document.getElementById('zoomBtn').textContent = `🔍 ${currentZoom}x`;
         }
 
         async function toggleFlash() {
@@ -717,7 +880,7 @@
             const capabilities = track.getCapabilities();
             
             if (!capabilities.torch) {
-                alert('Flash/torch not supported on this device');
+                alert('Flash not supported');
                 return;
             }
 
@@ -728,10 +891,10 @@
                     advanced: [{ torch: flashEnabled }]
                 });
                 
-                document.getElementById('flashBtn').textContent = flashEnabled ? '💡 Flash On' : '💡 Flash Off';
+                document.getElementById('flashBtn').textContent = flashEnabled ? '💡 On' : '💡 Off';
             } catch (err) {
                 console.error('Flash error:', err);
-                alert('Unable to control flash on this device');
+                alert('Unable to control flash');
             }
         }
 
@@ -775,24 +938,21 @@
             }
         }
 
-        // Event Listeners
         document.getElementById('captureBtn').addEventListener('click', capturePhoto);
         document.getElementById('zoomBtn').addEventListener('click', toggleZoom);
         document.getElementById('flashBtn').addEventListener('click', toggleFlash);
         document.getElementById('closeCameraBtn').addEventListener('click', closeCamera);
 
-        // Excel Export with Two Tabs
+        // Excel Export
         function exportToExcel() {
             const wb = XLSX.utils.book_new();
             
-            // Header info
             const propertyAddress = document.getElementById('propertyAddress').value;
             const tenantName = document.getElementById('tenantName').value;
             const inspectorName = document.getElementById('inspectorName').value;
             const inspectionDate = document.getElementById('inspectionDate').textContent;
             const inspectionTime = document.getElementById('inspectionTime').textContent;
 
-            // DATA TAB - All items
             const dataTabData = [
                 ['DO NOT MODIFY THIS PAGE. VALUES WILL UPDATE WHEN DOWNLOADING'],
                 [],
@@ -810,7 +970,6 @@
                 ['Area', 'Details', '\r\nN=New\r\nE=Excellent', '\r\nS=Satisfactory\r\nF=Fair\r\nP=Poor', '! - Action Items', '\r\nD=Damaged\r\nTD=Tenant Damaged', 'Action Item', 'Comments']
             ];
 
-            // DAMAGES TAB - Only damaged/poor/action items
             const damagesTabData = [
                 ['DO NOT MODIFY THIS PAGE. VALUES WILL UPDATE WHEN DOWNLOADING'],
                 [],
@@ -827,7 +986,6 @@
                 ['Area', 'Details', '\r\nN=New\r\nE=Excellent', '\r\nS=Satisfactory\r\nF=Fair\r\nP=Poor', '! - Action Items', '\r\nD=Damaged\r\nTD=Tenant Damaged', 'Action Item', 'Comments']
             ];
 
-            // Collect all items
             const sections = document.querySelectorAll('.section');
             sections.forEach(section => {
                 const sectionName = section.querySelector('h2').textContent;
@@ -839,7 +997,6 @@
                     const actionItem = item.querySelector('.action-item').value;
                     let comments = item.querySelector('.comments').value;
 
-                    // Add blind measurements if present
                     const blindWidth = item.querySelector('.blind-width');
                     const blindHeight = item.querySelector('.blind-height');
                     if (blindWidth && blindHeight && (blindWidth.value || blindHeight.value)) {
@@ -847,7 +1004,6 @@
                         comments = comments ? `${measurement}. ${comments}` : measurement;
                     }
 
-                    // Add filter size if present
                     const filterSize = item.querySelector('.filter-size');
                     if (filterSize && filterSize.value) {
                         const size = `Filter Size: ${filterSize.value}`;
@@ -855,7 +1011,6 @@
                     }
 
                     if (condition !== '-' || comments.trim() || actionItem.trim()) {
-                        // Determine which column the condition goes in
                         let condNE = '-', condSFP = '-', condAction = '-', condDamage = '-';
                         
                         if (condition === 'N' || condition === 'E') {
@@ -879,10 +1034,8 @@
                             comments
                         ];
 
-                        // Add to Data tab
                         dataTabData.push(row);
 
-                        // Add to Damages tab only if condition is D, TD, P, or !
                         if (condition === 'D' || condition === 'TD' || condition === 'P' || condition === '!') {
                             damagesTabData.push(row);
                         }
@@ -890,15 +1043,12 @@
                 });
             });
 
-            // Create Data sheet
             const wsData = XLSX.utils.aoa_to_sheet(dataTabData);
             XLSX.utils.book_append_sheet(wb, wsData, 'Data');
 
-            // Create Damages sheet
             const wsDamages = XLSX.utils.aoa_to_sheet(damagesTabData);
             XLSX.utils.book_append_sheet(wb, wsDamages, 'Damages');
 
-            // Generate filename
             const date = new Date().toISOString().split('T')[0];
             const address = propertyAddress.replace(/[^a-z0-9]/gi, '_') || 'property';
             const filename = `MoveOut_${address}_${date}.xlsx`;
@@ -973,7 +1123,6 @@
                         let comments = item.querySelector('.comments').value;
                         const photos = item.querySelectorAll('.photos img');
 
-                        // Add measurements to comments
                         const blindWidth = item.querySelector('.blind-width');
                         const blindHeight = item.querySelector('.blind-height');
                         if (blindWidth && blindHeight && (blindWidth.value || blindHeight.value)) {
@@ -1078,7 +1227,7 @@
                 };
 
                 await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams);
-                alert('Report sent successfully to Jay@avenuegroup.re!');
+                alert('Report sent successfully!');
             } catch (error) {
                 alert('Error sending email: ' + error.message);
                 console.error(error);
