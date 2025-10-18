@@ -8,8 +8,8 @@
     <meta name="apple-mobile-web-app-title" content="Move Out Inspection">
     <meta name="theme-color" content="#007bff">
     <title>Move Out Inspection - AG Management</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="manifest" href="/moveout-inspection/manifest.json">
+    <link rel="apple-touch-icon" href="/moveout-inspection/icon-192.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -603,7 +603,7 @@
     <script>
         // Register Service Worker for PWA
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
+            navigator.serviceWorker.register('/moveout-inspection/service-worker.js')
                 .then(reg => console.log('Service Worker registered'))
                 .catch(err => console.log('Service Worker registration failed'));
         }
