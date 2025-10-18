@@ -3,327 +3,896 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Move Out Inspection</title>
+    <title>Move Out Inspection - AG Management</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial; padding: 20px; background: #f5f5f5; max-width: 1400px; margin: 0 auto; }
-        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; }
-        .gps { background: #e8f4f8; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
-        .info { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        .section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .sec-head { display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #333; }
-        .item { background: #f9f9f9; padding: 15px; margin-bottom: 15px; border-radius: 4px; border-left: 4px solid #007bff; }
-        .item-name { font-weight: bold; margin-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .grid select, .grid input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; color: white; margin: 5px; }
-        .btn-add { background: #28a745; }
-        .btn-photo { background: #007bff; padding: 8px 15px; }
-        .btn-remove { background: #dc3545; }
-        .photos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-        .photo { position: relative; width: 100px; height: 100px; }
-        .photo img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
-        .photo button { position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; }
-        .actions { display: flex; gap: 10px; }
-        .actions button { flex: 1; padding: 15px; font-size: 16px; font-weight: bold; }
-        video { display: none; max-width: 400px; }
-        .hidden { display: none; }
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background-color: #f5f5f5; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        
+        .header { 
+            background-color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        
+        .company-info h1 { color: #333; margin-bottom: 10px; }
+        .company-info p { color: #666; margin: 5px 0; }
+        
+        .location-info { 
+            background-color: #e8f4f8; 
+            padding: 15px; 
+            border-radius: 4px; 
+            margin-bottom: 20px; 
+            font-size: 14px; 
+            border-left: 4px solid #007bff; 
+        }
+        
+        .basic-info { 
+            background-color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        
+        .form-group { margin-bottom: 15px; }
+        
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+            color: #333; 
+        }
+        
+        input, textarea, select { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            font-size: 14px; 
+        }
+        
+        textarea { min-height: 60px; }
+        
+        .section { 
+            background-color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        
+        .section-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px; 
+            padding-bottom: 10px; 
+            border-bottom: 2px solid #007bff; 
+        }
+        
+        .section-header h2 { color: #007bff; }
+        
+        .remove-section { 
+            background: #dc3545; 
+            color: white; 
+            border: none; 
+            padding: 8px 15px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+        
+        .item { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 4px; 
+            margin-bottom: 15px; 
+            border-left: 3px solid #28a745; 
+        }
+        
+        .item-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 10px; 
+        }
+        
+        .item-header h4 { color: #333; }
+        
+        .remove-item { 
+            background: #6c757d; 
+            color: white; 
+            border: none; 
+            padding: 5px 10px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 12px; 
+        }
+        
+
+        
+        .photo-btn { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 15px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 10px 5px 10px 0; 
+        }
+        
+        .photo-btn:hover { background: #0056b3; }
+        
+        .photos { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+            gap: 10px; 
+            margin-top: 10px; 
+        }
+        
+        .photo { 
+            position: relative; 
+            width: 100%; 
+            padding-top: 100%; 
+        }
+        
+        .photo img { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            border-radius: 4px; 
+        }
+        
+        .photo button { 
+            position: absolute; 
+            top: -5px; 
+            right: -5px; 
+            background: #dc3545; 
+            color: white; 
+            border: none; 
+            border-radius: 50%; 
+            width: 24px; 
+            height: 24px; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
+        
+        .add-section-btns { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        
+        .add-section-btns h3 { 
+            margin-bottom: 15px; 
+            color: #333; 
+        }
+        
+        .add-btn-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 10px; 
+        }
+        
+        .add-btn { 
+            background: #28a745; 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: bold; 
+        }
+        
+        .add-btn:hover { background: #218838; }
+        
+        .add-item-btn { 
+            background: #17a2b8; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin-top: 10px; 
+        }
+        
+        .action-btns { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 10px; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        
+        .action-btns button { 
+            padding: 15px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: bold; 
+            color: white; 
+        }
+        
+        .export { background: #28a745; }
+        .export:hover { background: #218838; }
+        .submit { background: #007bff; }
+        .submit:hover { background: #0056b3; }
+        .pdf-btn { background: #dc3545; }
+        .pdf-btn:hover { background: #c82333; }
+        
+        .legend { 
+            background: #fff3cd; 
+            padding: 15px; 
+            border-radius: 4px; 
+            margin-bottom: 20px; 
+            border: 1px solid #ffc107; 
+        }
+        
+        .legend h4 { 
+            margin-bottom: 10px; 
+            color: #856404; 
+        }
+        
+        .legend-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 8px; 
+            font-size: 13px; 
+        }
+        
+        video { 
+            max-width: 100%; 
+            height: auto; 
+            display: none; 
+            border-radius: 4px; 
+            margin: 10px 0; 
+        }
+        
+        canvas { display: none; }
+        
+        .hidden { display: none !important; }
+        
+        .loading { 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: white; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+            z-index: 1001; 
+            text-align: center; 
+        }
+        
+        .overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            background: rgba(0,0,0,0.5); 
+            z-index: 1000; 
+            display: none; 
+        }
+        
+        .camera-view { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            background: black; 
+            z-index: 2000; 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .camera-view video { 
+            display: block; 
+            max-width: 100%; 
+            max-height: calc(100vh - 100px); 
+        }
+        
+        .camera-controls { 
+            position: absolute; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            display: flex; 
+            gap: 20px; 
+        }
+        
+        .camera-btn { 
+            background: white; 
+            color: black; 
+            border: none; 
+            padding: 15px 30px; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: bold; 
+        }
+        
+        .capture-btn { background: #007bff; color: white; }
+        .close-camera-btn { background: #dc3545; color: white; }
+        
+        @media print { 
+            .add-section-btns, .action-btns, .photo-btn, .remove-section, .remove-item, .add-item-btn { 
+                display: none; 
+            } 
+        }
     </style>
 </head>
 <body>
+    <div class="overlay" id="overlay"></div>
+    <div class="loading hidden" id="loading">
+        <h3>Generating Reports...</h3>
+        <p>Please wait while we create your reports</p>
+    </div>
+
+    <div class="camera-view" id="cameraView">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+        <div class="camera-controls">
+            <button class="camera-btn capture-btn" id="captureBtn">📷 Capture Photo</button>
+            <button class="camera-btn close-camera-btn" id="closeCameraBtn">✕ Close</button>
+        </div>
+    </div>
+
     <div class="header">
-        <div>
+        <div class="company-info">
             <h1>Move Out Inspection</h1>
+            <p><strong>Tenant@335.Rent</strong></p>
             <p>AG Management</p>
             <p>2985 12 Mile Berkley MI, 48073</p>
             <p>(248)335-7368</p>
         </div>
-        <svg width="100" height="100" viewBox="0 0 200 200">
-            <circle cx="100" cy="70" r="45" fill="none" stroke="#8B7355" stroke-width="3"/>
-            <path d="M 100 45 L 85 60 L 115 60 Z" fill="#8B7355"/>
-            <rect x="85" y="60" width="30" height="25" fill="none" stroke="#8B7355" stroke-width="2"/>
-            <rect x="95" y="70" width="10" height="15" fill="#8B7355"/>
-            <text x="100" y="135" font-size="14" fill="#333" text-anchor="middle">AVENUE GROUP</text>
-        </svg>
     </div>
 
-    <div class="gps">
-        <strong>📍 GPS:</strong> <span id="gps">Detecting...</span><br>
-        <strong>⏰ Time:</strong> <span id="time">--</span>
+    <div class="location-info" id="locationInfo">
+        <strong>📍 GPS Location:</strong> <span id="gpsCoords">Getting location...</span><br>
+        <strong>📅 Inspection Date:</strong> <span id="inspectionDate"></span><br>
+        <strong>🕐 Inspection Time:</strong> <span id="inspectionTime"></span>
     </div>
 
-    <div class="info">
-        <h2>Information</h2>
-        <div class="group">
-            <label>Property *</label>
-            <input type="text" id="prop">
+    <div class="basic-info">
+        <div class="form-group">
+            <label>Property Address</label>
+            <input type="text" id="propertyAddress" placeholder="Enter property address">
         </div>
-        <div class="group">
-            <label>Tenant *</label>
-            <input type="text" id="tenant">
+        <div class="form-group">
+            <label>Tenant(s) Name</label>
+            <input type="text" id="tenantName" placeholder="Enter tenant name(s)">
         </div>
-        <div class="group">
-            <label>Inspector *</label>
-            <input type="text" id="insp">
-        </div>
-        <div class="group">
-            <label>Date *</label>
-            <input type="date" id="date">
+        <div class="form-group">
+            <label>Agent/Inspector</label>
+            <input type="text" id="inspectorName" placeholder="Enter inspector name">
         </div>
     </div>
 
-    <div id="secs"></div>
+    <div class="legend">
+        <h4>Condition Legend</h4>
+        <div class="legend-grid">
+            <div><strong>N</strong> - New</div>
+            <div><strong>E</strong> - Excellent</div>
+            <div><strong>S</strong> - Satisfactory</div>
+            <div><strong>F</strong> - Fair</div>
+            <div><strong>P</strong> - Poor</div>
+            <div><strong>!</strong> - Action</div>
+            <div><strong>D</strong> - Damaged</div>
+            <div><strong>TD</strong> - Tenant Damaged</div>
+        </div>
+    </div>
 
-    <div class="info">
+    <div class="add-section-btns">
         <h3>Add Sections</h3>
-        <button class="btn btn-add" onclick="add('Bedrooms')">Bedrooms</button>
-        <button class="btn btn-add" onclick="add('Bathrooms')">Bathrooms</button>
-        <button class="btn btn-add" onclick="add('Kitchen')">Kitchen</button>
-        <button class="btn btn-add" onclick="add('Living Room')">Living Room</button>
-        <button class="btn btn-add" onclick="add('Laundry')">Laundry</button>
-        <button class="btn btn-add" onclick="add('Systems')">Systems</button>
-    </div>
-
-    <div class="info">
-        <div class="group">
-            <label>Additional Comments</label>
-            <textarea id="add" rows="3"></textarea>
+        <div class="add-btn-grid">
+            <button class="add-btn" onclick="addSection('Bedrooms')">Bedrooms</button>
+            <button class="add-btn" onclick="addSection('Bathrooms')">Bathrooms</button>
+            <button class="add-btn" onclick="addSection('Kitchen')">Kitchen</button>
+            <button class="add-btn" onclick="addSection('Living Room')">Living Room</button>
+            <button class="add-btn" onclick="addSection('Dining Room')">Dining Room</button>
+            <button class="add-btn" onclick="addSection('Family Room')">Family Room</button>
+            <button class="add-btn" onclick="addSection('Laundry')">Laundry</button>
+            <button class="add-btn" onclick="addSection('Hallway/Stairs')">Hallway/Stairs</button>
+            <button class="add-btn" onclick="addSection('Basement')">Basement</button>
+            <button class="add-btn" onclick="addSection('Entry')">Entry</button>
+            <button class="add-btn" onclick="addSection('Front Yard')">Front Yard</button>
+            <button class="add-btn" onclick="addSection('Back Yard')">Back Yard</button>
+            <button class="add-btn" onclick="addSection('Side Yard')">Side Yard</button>
+            <button class="add-btn" onclick="addSection('Garage')">Garage</button>
+            <button class="add-btn" onclick="addSection('Systems')">Systems</button>
+            <button class="add-btn" onclick="addSection('Other')">Other</button>
         </div>
-        <div class="group">
-            <label>Final Comments</label>
-            <textarea id="fin" rows="3"></textarea>
-        </div>
     </div>
 
-    <div class="actions">
-        <button class="btn btn-remove" onclick="getPDF()">📄 PDF</button>
-        <button class="btn btn-add" onclick="getXLS()">📊 Excel</button>
-        <button class="btn btn-photo" onclick="submit()">📧 Email Both</button>
-    </div>
+    <div id="sectionsContainer"></div>
 
-    <video id="v"></video>
-    <canvas id="c" class="hidden"></canvas>
+    <div class="action-btns">
+        <button class="pdf-btn" onclick="generatePDF()">📄 Download PDF Report</button>
+        <button class="export" onclick="exportToExcel()">📊 Download Excel Report</button>
+        <button class="submit" onclick="emailReport()">📧 Complete & Email Report</button>
+    </div>
 
     <script>
-        let n=0, loc=null, start=new Date();
-        const tmp = {
-            'Bedrooms': ['Closet', 'Door', 'Flooring', 'Light', 'Window'],
-            'Bathrooms': ['Cabinet', 'Door', 'Flooring', 'Light', 'Shower', 'Sink', 'Toilet'],
-            'Kitchen': ['Cabinets', 'Counter', 'Faucet', 'Flooring', 'Oven', 'Refrigerator'],
-            'Living Room': ['Flooring', 'Light', 'Wall', 'Window'],
-            'Laundry': ['Dryer', 'Flooring', 'Washer'],
-            'Systems': ['Breaker', 'Furnace', 'Water Heater']
+        // Initialize EmailJS
+        emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");
+
+        let sectionCounter = {};
+        let currentPhotoTarget = null;
+        let videoStream = null;
+
+        // Default items for each section type
+        const sectionItems = {
+            'Bedrooms': ['Door/Knob/Lock', 'Closet/Door/Track/Shelving', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen', 'CO/Smoke Detector', 'Switch/Outlet'],
+            'Bathrooms': ['Cabinet/Counter/Shelving', 'Door/Knob/Lock', 'Exhaust Fan', 'Flooring/Baseboard', 'Light Fixture', 'Medicine Cabinet/Mirror', 'Plumbing/Drain', 'Shower Door/Rail/Curtain', 'Sink/Faucet', 'Switch/Outlet', 'Toilet', 'Toilet Paper Holder', 'Toilet Turns off appropriately upon flushing', 'Towel Rack', 'Tub/Shower', 'Wall/Ceiling', 'Window/Lock/Screen'],
+            'Kitchen': ['Cabinets/Drawers', 'Counter', 'Dishwasher', 'Faucet/Plumbing', 'Flooring/Baseboard', 'Light Fixture', 'Microwave', 'Oven', 'Range/Fan/Hood/Filter', 'Refrigerator', 'Sink/Disposal', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
+            'Living Room': ['Flooring/Baseboard', 'Light Fixture/Fan', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
+            'Dining Room': ['Flooring/Baseboard', 'Light Fixture/Fan', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
+            'Family Room': ['Flooring/Baseboard', 'Light Fixture/Fan', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
+            'Laundry': ['Flooring/Baseboard', 'Light Fixture', 'Switch/Outlet', 'Wall/Ceiling', 'Other'],
+            'Hallway/Stairs': ['Flooring/Baseboard', 'Light Fixture', 'Smoke/CO Detector', 'Switch/Outlet', 'Wall/Ceiling'],
+            'Basement': ['Door/Knob/Lock', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Other', 'Smoke detector', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
+            'Entry': ['Door/Knob/Lock', 'Doorbell', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Other', 'Security/Screen Door', 'Switch/Outlet', 'Wall/Ceiling'],
+            'Front Yard': ['Building Exterior', 'Landscaping', 'Walkway/Driveway', 'Other'],
+            'Back Yard': ['Patio/Deck/Balcony', 'Landscaping', 'Fence', 'Light Fixture', 'Other'],
+            'Side Yard': ['Landscaping', 'Fence', 'Walkway', 'Other'],
+            'Garage': ['Door/Opener', 'Flooring', 'Light Fixture', 'Wall/Ceiling', 'Window/Lock', 'Other'],
+            'Systems': ['Furnace/Heating', 'Air Conditioning', 'Water Heater', 'Electrical Panel', 'Plumbing', 'Other'],
+            'Other': []
         };
 
-        emailjs.init("YOUR_PUBLIC_KEY");
+        // GPS and Time tracking
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('inspectionDate').textContent = now.toLocaleDateString();
+            document.getElementById('inspectionTime').textContent = now.toLocaleTimeString();
+        }
 
-        if(navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(p => {
-                loc = {lat:p.coords.latitude, lng:p.coords.longitude};
-                document.getElementById('gps').textContent = `${loc.lat.toFixed(6)}, ${loc.lng.toFixed(6)}`;
+        function getGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const coords = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
+                        document.getElementById('gpsCoords').textContent = coords;
+                    },
+                    (error) => {
+                        document.getElementById('gpsCoords').textContent = 'Location unavailable';
+                    }
+                );
+            } else {
+                document.getElementById('gpsCoords').textContent = 'GPS not supported';
+            }
+        }
+
+        // Section Management
+        function addSection(type) {
+            if (!sectionCounter[type]) {
+                sectionCounter[type] = 0;
+            }
+            sectionCounter[type]++;
+
+            const sectionId = `${type.toLowerCase().replace(/\s+/g, '-')}-${sectionCounter[type]}`;
+            const sectionName = sectionCounter[type] > 1 ? `${type} ${sectionCounter[type]}` : type;
+
+            const section = document.createElement('div');
+            section.className = 'section';
+            section.id = sectionId;
+            section.innerHTML = `
+                <div class="section-header">
+                    <h2>${sectionName}</h2>
+                    <button class="remove-section" onclick="removeSection('${sectionId}')">Remove Section</button>
+                </div>
+                <div class="items-container" id="${sectionId}-items"></div>
+                <button class="add-item-btn" onclick="showAddItemModal('${sectionId}', '${sectionName}')">+ Add Custom Item</button>
+            `;
+
+            document.getElementById('sectionsContainer').appendChild(section);
+
+            // Add default items for this section type
+            const items = sectionItems[type] || [];
+            items.forEach(itemName => {
+                addItem(sectionId, sectionName, itemName);
             });
         }
 
-        setInterval(() => {
-            document.getElementById('time').textContent = new Date().toLocaleString();
-        }, 1000);
-
-        function add(name) {
-            n++;
-            const id = `s${n}`;
-            const items = (tmp[name]||['Item']).map((it,i) => `
-                <div class="item" id="${id}i${i}">
-                    <div class="item-name">${it}</div>
-                    <div class="grid">
-                        <div>
-                            <label style="font-size: 12px; margin-bottom: 3px;">Condition</label>
-                            <select data-f="c">
-                                <option value=""></option>
-                                <option value="N">N - New</option>
-                                <option value="E">E - Excellent</option>
-                                <option value="S">S - Satisfactory</option>
-                                <option value="F">F - Fair</option>
-                                <option value="P">P - Poor</option>
-                                <option value="!">! - Action</option>
-                                <option value="D">D - Damaged</option>
-                                <option value="TD">TD - Tenant Damaged</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="font-size: 12px; margin-bottom: 3px;">Action</label>
-                            <select data-f="a">
-                                <option value="None">None</option>
-                                <option value="Repair">Repair</option>
-                                <option value="Replace">Replace</option>
-                                <option value="Update">Update</option>
-                                <option value="Clean">Clean</option>
-                            </select>
-                        </div>
-                    </div>
-                    <textarea data-f="m" placeholder="Comment" rows="2"></textarea>
-                    <button class="btn btn-photo" onclick="pic('${id}i${i}')">📷 Photo</button>
-                    <div class="photos" id="${id}i${i}p"></div>
-                </div>
-            `).join('');
-
-            document.getElementById('secs').insertAdjacentHTML('beforeend', `
-                <div class="section" id="${id}">
-                    <div class="sec-head">
-                        <h3>${name}</h3>
-                        <button class="btn btn-remove" onclick="rm('${id}')">Remove</button>
-                    </div>
-                    ${items}
-                </div>
-            `);
-        }
-
-        function rm(id) { document.getElementById(id).remove(); }
-
-        async function pic(id) {
-            const v = document.getElementById('v');
-            const c = document.getElementById('c');
-            try {
-                const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
-                v.srcObject = s;
-                v.style.display = 'block';
-                await v.play();
-                setTimeout(() => {
-                    c.width = v.videoWidth;
-                    c.height = v.videoHeight;
-                    c.getContext('2d').drawImage(v,0,0);
-                    const img = c.toDataURL('image/jpeg',0.8);
-                    const pid = `p${Date.now()}`;
-                    document.getElementById(`${id}p`).insertAdjacentHTML('beforeend',`
-                        <div class="photo" id="${pid}">
-                            <img src="${img}">
-                            <button onclick="rm('${pid}')">×</button>
-                        </div>
-                    `);
-                    s.getTracks().forEach(t=>t.stop());
-                    v.style.display='none';
-                },2000);
-            } catch(e) { alert('Camera error'); }
-        }
-
-        function getData() {
-            return {
-                property: document.getElementById('prop').value,
-                tenant: document.getElementById('tenant').value,
-                inspector: document.getElementById('insp').value,
-                date: document.getElementById('date').value,
-                location: loc,
-                sections: Array.from(document.querySelectorAll('.section')).map(s => ({
-                    area: s.querySelector('h3').textContent,
-                    items: Array.from(s.querySelectorAll('.item')).map(c => ({
-                        detail: c.querySelector('.item-name').textContent,
-                        condition: c.querySelector('[data-f="c"]').value,
-                        actions: c.querySelector('[data-f="a"]').value||'None',
-                        comment: c.querySelector('[data-f="m"]').value,
-                        photos: Array.from(c.querySelectorAll('.photo img')).map(i=>i.src)
-                    }))
-                })),
-                additional: document.getElementById('add').value,
-                final: document.getElementById('fin').value
-            };
-        }
-
-        async function getPDF() {
-            if(!document.getElementById('prop').value) return alert('Fill property');
-            const d = getData();
-            const {jsPDF} = window.jspdf;
-            const pdf = new jsPDF();
-            let y = 20;
-
-            pdf.setFontSize(18);
-            pdf.text('Move Out Inspection', 105, y, {align:'center'});
-            y += 10;
-            pdf.setFontSize(10);
-            pdf.text('AG Management - Avenue Group', 105, y, {align:'center'});
-            y += 15;
-
-            pdf.setFontSize(12);
-            pdf.text(`Property: ${d.property}`, 20, y); y+=7;
-            pdf.text(`Tenant: ${d.tenant}`, 20, y); y+=7;
-            pdf.text(`Inspector: ${d.inspector}`, 20, y); y+=7;
-            pdf.text(`Date: ${d.date}`, 20, y); y+=10;
-
-            for(const sec of d.sections) {
-                if(y>250) { pdf.addPage(); y=20; }
-                pdf.setFontSize(14);
-                pdf.text(sec.area, 20, y); y+=8;
-
-                for(const item of sec.items) {
-                    if(y>260) { pdf.addPage(); y=20; }
-                    pdf.setFontSize(11);
-                    pdf.text(item.detail, 25, y); y+=6;
-                    pdf.setFontSize(10);
-                    pdf.text(`${item.condition||'-'} | ${item.actions}`, 30, y); y+=5;
-                    if(item.comment) {
-                        const lines = pdf.splitTextToSize(item.comment, 160);
-                        pdf.text(lines, 30, y);
-                        y += lines.length*5;
-                    }
-                    if(item.photos && item.photos.length>0) {
-                        for(const p of item.photos) {
-                            if(y>220) { pdf.addPage(); y=20; }
-                            try { pdf.addImage(p,'JPEG',30,y,40,40); y+=45; } catch(e) {}
-                        }
-                    }
-                    y+=5;
-                }
+        function removeSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section && confirm('Are you sure you want to remove this section?')) {
+                section.remove();
             }
-
-            pdf.save(`MoveOut_${d.property.replace(/\s/g,'_')}.pdf`);
         }
 
-        function getXLS() {
-            if(!document.getElementById('prop').value) return alert('Fill property');
-            const d = getData();
-            const rows = [
-                ['Move Out Inspection'],
-                ['Property:', d.property],
-                ['Tenant:', d.tenant],
-                ['Inspector:', d.inspector],
-                ['Date:', d.date],
-                []
+        function showAddItemModal(sectionId, sectionName) {
+            const itemName = prompt('Enter custom item name:');
+            if (itemName && itemName.trim()) {
+                addItem(sectionId, sectionName, itemName.trim());
+            }
+        }
+
+        function addItem(sectionId, sectionName, itemName) {
+            const itemId = `${sectionId}-item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            const itemsContainer = document.getElementById(`${sectionId}-items`);
+
+            const item = document.createElement('div');
+            item.className = 'item';
+            item.id = itemId;
+            item.innerHTML = `
+                <div class="item-header">
+                    <h4>${itemName}</h4>
+                    <button class="remove-item" onclick="removeItem('${itemId}')">Remove</button>
+                </div>
+                <div class="form-group">
+                    <label>Condition</label>
+                    <select class="condition">
+                        <option value="-">-</option>
+                        <option value="N">N - New</option>
+                        <option value="E">E - Excellent</option>
+                        <option value="S">S - Satisfactory</option>
+                        <option value="F">F - Fair</option>
+                        <option value="P">P - Poor</option>
+                        <option value="!">! - Action</option>
+                        <option value="D">D - Damaged</option>
+                        <option value="TD">TD - Tenant Damaged</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Action Item</label>
+                    <input type="text" class="action-item" placeholder="Enter action needed">
+                </div>
+                <div class="form-group">
+                    <label>Comments</label>
+                    <textarea class="comments" placeholder="Enter detailed comments"></textarea>
+                </div>
+                <button class="photo-btn" onclick="openCamera('${itemId}')">📷 Take Photo</button>
+                <div class="photos" id="${itemId}-photos"></div>
+            `;
+
+            itemsContainer.appendChild(item);
+        }
+
+        function removeItem(itemId) {
+            const item = document.getElementById(itemId);
+            if (item && confirm('Remove this item?')) {
+                item.remove();
+            }
+        }
+
+        // Camera Functions
+        async function openCamera(itemId) {
+            currentPhotoTarget = itemId;
+            const cameraView = document.getElementById('cameraView');
+            const video = document.getElementById('video');
+
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    } 
+                });
+                video.srcObject = videoStream;
+                cameraView.style.display = 'flex';
+            } catch (err) {
+                alert('Camera access denied or not available. Please check your browser settings.');
+                console.error('Camera error:', err);
+            }
+        }
+
+        function closeCamera() {
+            const cameraView = document.getElementById('cameraView');
+            const video = document.getElementById('video');
+            
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            
+            video.srcObject = null;
+            cameraView.style.display = 'none';
+            currentPhotoTarget = null;
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0);
+
+            canvas.toBlob((blob) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    addPhotoToItem(currentPhotoTarget, reader.result);
+                };
+                reader.readAsDataURL(blob);
+            }, 'image/jpeg', 0.9);
+        }
+
+        function addPhotoToItem(itemId, photoData) {
+            const photosContainer = document.getElementById(`${itemId}-photos`);
+            const photoId = `photo-${Date.now()}`;
+
+            const photoDiv = document.createElement('div');
+            photoDiv.className = 'photo';
+            photoDiv.id = photoId;
+            photoDiv.innerHTML = `
+                <img src="${photoData}" alt="Inspection photo">
+                <button onclick="removePhoto('${photoId}')">×</button>
+            `;
+
+            photosContainer.appendChild(photoDiv);
+        }
+
+        function removePhoto(photoId) {
+            const photo = document.getElementById(photoId);
+            if (photo) {
+                photo.remove();
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('captureBtn').addEventListener('click', capturePhoto);
+        document.getElementById('closeCameraBtn').addEventListener('click', closeCamera);
+
+        // Excel Export
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+            
+            const damagesData = [
+                ['DO NOT MODIFY THIS PAGE. VALUES WILL UPDATE WHEN DOWNLOADING'],
+                [],
+                [null, null, 'Conditions'],
+                ['Area', 'Details', '\r\nN=New\r\nE=Excellent', '\r\nS=Satisfactory\r\nF=Fair\r\nP=Poor', '! - Action Items', '\r\nD=Damaged\r\nTD=Tenant Damaged', 'Action Item', 'Comments', 'Costs']
             ];
 
-            d.sections.forEach(s => {
-                rows.push([s.area]);
-                rows.push(['Detail','Condition','Actions','Comment','Photos']);
-                s.items.forEach(i => rows.push([i.detail,i.condition,i.actions,i.comment,i.photos.length]));
-                rows.push([]);
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                const sectionName = section.querySelector('h2').textContent;
+                const items = section.querySelectorAll('.item');
+
+                items.forEach(item => {
+                    const itemName = item.querySelector('h4').textContent;
+                    const condition = item.querySelector('.condition').value;
+                    const actionItem = item.querySelector('.action-item').value;
+                    const comments = item.querySelector('.comments').value;
+
+                    if (condition !== '-' || comments.trim() || actionItem.trim()) {
+                        // Determine which column the condition goes in
+                        let condNE = '-', condSFP = '-', condAction = '-', condDamage = '-';
+                        
+                        if (condition === 'N' || condition === 'E') {
+                            condNE = condition;
+                        } else if (condition === 'S' || condition === 'F' || condition === 'P') {
+                            condSFP = condition;
+                        } else if (condition === '!') {
+                            condAction = condition;
+                        } else if (condition === 'D' || condition === 'TD') {
+                            condDamage = condition;
+                        }
+                        
+                        damagesData.push([
+                            sectionName,
+                            itemName,
+                            condNE,
+                            condSFP,
+                            condAction,
+                            condDamage,
+                            actionItem,
+                            comments,
+                            ''
+                        ]);
+                    }
+                });
             });
 
-            const ws = XLSX.utils.aoa_to_sheet(rows);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Inspection');
-            XLSX.writeFile(wb, `MoveOut_${d.property.replace(/\s/g,'_')}.xlsx`);
+            const ws = XLSX.utils.aoa_to_sheet(damagesData);
+            XLSX.utils.book_append_sheet(wb, ws, 'Damages');
+
+            const date = new Date().toISOString().split('T')[0];
+            const address = document.getElementById('propertyAddress').value.replace(/[^a-z0-9]/gi, '_') || 'property';
+            const filename = `MoveOut_${address}_${date}.xlsx`;
+
+            XLSX.writeFile(wb, filename);
         }
 
-        function submit() {
-            if(!document.getElementById('prop').value) return alert('Fill required fields');
-            getPDF();
-            getXLS();
-            const d = getData();
-            emailjs.send('YOUR_SERVICE_ID','YOUR_TEMPLATE_ID',{
-                to_email: 'Jay@avenuegroup.re',
-                property: d.property,
-                tenant: d.tenant,
-                message: 'PDF and Excel generated'
-            }).then(() => alert('✅ Files downloaded and email sent!'))
-            .catch(() => alert('Files downloaded. Manually send to Jay@avenuegroup.re'));
+        // PDF Generation
+        async function generatePDF() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('loading').classList.remove('hidden');
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                let yPos = 20;
+
+                pdf.setFontSize(18);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('Move Out Inspection Report', 105, yPos, { align: 'center' });
+                yPos += 10;
+
+                pdf.setFontSize(10);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text('AG Management - 2985 12 Mile Berkley MI, 48073', 105, yPos, { align: 'center' });
+                yPos += 5;
+                pdf.text('(248)335-7368', 105, yPos, { align: 'center' });
+                yPos += 15;
+
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('Property Information', 20, yPos);
+                yPos += 7;
+
+                pdf.setFontSize(10);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(`Property: ${document.getElementById('propertyAddress').value}`, 20, yPos);
+                yPos += 5;
+                pdf.text(`Tenant: ${document.getElementById('tenantName').value}`, 20, yPos);
+                yPos += 5;
+                pdf.text(`Inspector: ${document.getElementById('inspectorName').value}`, 20, yPos);
+                yPos += 5;
+                pdf.text(`Date: ${document.getElementById('inspectionDate').textContent}`, 20, yPos);
+                yPos += 5;
+                pdf.text(`Time: ${document.getElementById('inspectionTime').textContent}`, 20, yPos);
+                yPos += 5;
+                pdf.text(`GPS: ${document.getElementById('gpsCoords').textContent}`, 20, yPos);
+                yPos += 15;
+
+                const sections = document.querySelectorAll('.section');
+                
+                for (const section of sections) {
+                    const sectionName = section.querySelector('h2').textContent;
+                    const items = section.querySelectorAll('.item');
+
+                    if (items.length === 0) continue;
+
+                    if (yPos > 250) {
+                        pdf.addPage();
+                        yPos = 20;
+                    }
+
+                    pdf.setFontSize(14);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text(sectionName, 20, yPos);
+                    yPos += 7;
+
+                    for (const item of items) {
+                        const itemName = item.querySelector('h4').textContent;
+                        const condition = item.querySelector('.condition').value;
+                        const actionItem = item.querySelector('.action-item').value;
+                        const comments = item.querySelector('.comments').value;
+                        const photos = item.querySelectorAll('.photos img');
+
+                        if (yPos > 240) {
+                            pdf.addPage();
+                            yPos = 20;
+                        }
+
+                        pdf.setFontSize(11);
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.text(`• ${itemName}`, 25, yPos);
+                        yPos += 5;
+
+                        pdf.setFontSize(9);
+                        pdf.setFont('helvetica', 'normal');
+                        
+                        if (condition !== '-') {
+                            pdf.text(`  Condition: ${condition}`, 30, yPos);
+                            yPos += 4;
+                        }
+
+                        if (actionItem.trim()) {
+                            pdf.text(`  Action: ${actionItem}`, 30, yPos);
+                            yPos += 4;
+                        }
+
+                        if (comments.trim()) {
+                            const lines = pdf.splitTextToSize(`  Comments: ${comments}`, 160);
+                            pdf.text(lines, 30, yPos);
+                            yPos += (lines.length * 4);
+                        }
+
+                        if (photos.length > 0) {
+                            yPos += 2;
+                            let xPos = 30;
+                            for (const photo of photos) {
+                                if (xPos > 160) {
+                                    xPos = 30;
+                                    yPos += 40;
+                                }
+                                if (yPos > 240) {
+                                    pdf.addPage();
+                                    yPos = 20;
+                                    xPos = 30;
+                                }
+                                
+                                try {
+                                    pdf.addImage(photo.src, 'JPEG', xPos, yPos, 35, 35);
+                                    xPos += 40;
+                                } catch (e) {
+                                    console.error('Error adding image:', e);
+                                }
+                            }
+                            yPos += 40;
+                        }
+
+                        yPos += 5;
+                    }
+                }
+
+                const date = new Date().toISOString().split('T')[0];
+                const address = document.getElementById('propertyAddress').value.replace(/[^a-z0-9]/gi, '_') || 'property';
+                pdf.save(`MoveOut_Report_${address}_${date}.pdf`);
+
+            } catch (error) {
+                alert('Error generating PDF: ' + error.message);
+                console.error(error);
+            } finally {
+                document.getElementById('overlay').style.display = 'none';
+                document.getElementById('loading').classList.add('hidden');
+            }
         }
 
-        window.onload = () => {
-            document.getElementById('date').value = new Date().toISOString().slice(0,10);
-        };
+        // Email Function
+        async function emailReport() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('loading').classList.remove('hidden');
+
+            try {
+                const propertyAddress = document.getElementById('propertyAddress').value;
+                const tenantName = document.getElementById('tenantName').value;
+                const inspectorName = document.getElementById('inspectorName').value;
+
+                const templateParams = {
+                    property_address: propertyAddress,
+                    tenant_name: tenantName,
+                    inspector_name: inspectorName,
+                    inspection_date: document.getElementById('inspectionDate').textContent,
+                    inspection_time: document.getElementById('inspectionTime').textContent,
+                    gps_location: document.getElementById('gpsCoords').textContent,
+                    to_email: 'Jay@avenuegroup.re'
+                };
+
+                await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams);
+                alert('Report sent successfully to Jay@avenuegroup.re!');
+            } catch (error) {
+                alert('Error sending email: ' + error.message);
+                console.error(error);
+            } finally {
+                document.getElementById('overlay').style.display = 'none';
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+
+        // Initialize
+        updateDateTime();
+        getGPS();
+        setInterval(updateDateTime, 1000);
     </script>
 </body>
 </html>
