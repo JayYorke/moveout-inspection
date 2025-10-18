@@ -119,8 +119,6 @@
             font-size: 12px; 
         }
         
-
-        
         .photo-btn { 
             background: #007bff; 
             color: white; 
@@ -220,6 +218,7 @@
             padding: 20px; 
             border-radius: 8px; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            margin-bottom: 20px;
         }
         
         .action-btns button { 
@@ -312,7 +311,7 @@
         .camera-view video { 
             display: block; 
             max-width: 100%; 
-            max-height: calc(100vh - 100px); 
+            max-height: calc(100vh - 150px); 
         }
         
         .camera-controls { 
@@ -321,7 +320,9 @@
             left: 50%; 
             transform: translateX(-50%); 
             display: flex; 
-            gap: 20px; 
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         
         .camera-btn { 
@@ -336,7 +337,20 @@
         }
         
         .capture-btn { background: #007bff; color: white; }
+        .flash-btn { background: #ffc107; color: black; }
+        .zoom-btn { background: #17a2b8; color: white; }
         .close-camera-btn { background: #dc3545; color: white; }
+        
+        .measure-input { 
+            display: flex; 
+            gap: 10px; 
+            align-items: center; 
+            margin: 10px 0; 
+        }
+        
+        .measure-input input { 
+            width: 100px; 
+        }
         
         @media print { 
             .add-section-btns, .action-btns, .photo-btn, .remove-section, .remove-item, .add-item-btn { 
@@ -357,6 +371,8 @@
         <canvas id="canvas"></canvas>
         <div class="camera-controls">
             <button class="camera-btn capture-btn" id="captureBtn">📷 Capture Photo</button>
+            <button class="camera-btn zoom-btn" id="zoomBtn">🔍 Zoom In</button>
+            <button class="camera-btn flash-btn" id="flashBtn">💡 Flash Off</button>
             <button class="camera-btn close-camera-btn" id="closeCameraBtn">✕ Close</button>
         </div>
     </div>
@@ -406,17 +422,35 @@
         </div>
     </div>
 
+    <div id="sectionsContainer"></div>
+
+    <div class="action-btns">
+        <button class="pdf-btn" onclick="generatePDF()">📄 Download PDF Report</button>
+        <button class="export" onclick="exportToExcel()">📊 Download Excel Report</button>
+        <button class="submit" onclick="emailReport()">📧 Complete & Email Report</button>
+    </div>
+
     <div class="add-section-btns">
         <h3>Add Sections</h3>
         <div class="add-btn-grid">
-            <button class="add-btn" onclick="addSection('Bedrooms')">Bedrooms</button>
-            <button class="add-btn" onclick="addSection('Bathrooms')">Bathrooms</button>
+            <button class="add-btn" onclick="addSection('Bedroom 1')">Bedroom 1</button>
+            <button class="add-btn" onclick="addSection('Bedroom 2')">Bedroom 2</button>
+            <button class="add-btn" onclick="addSection('Bedroom 3')">Bedroom 3</button>
+            <button class="add-btn" onclick="addSection('Bedroom 4')">Bedroom 4</button>
+            <button class="add-btn" onclick="addSection('Bedroom 5')">Bedroom 5</button>
+            <button class="add-btn" onclick="addSection('Bathroom 1')">Bathroom 1</button>
+            <button class="add-btn" onclick="addSection('Bathroom 2')">Bathroom 2</button>
+            <button class="add-btn" onclick="addSection('Bathroom 3')">Bathroom 3</button>
+            <button class="add-btn" onclick="addSection('Bathroom 4')">Bathroom 4</button>
             <button class="add-btn" onclick="addSection('Kitchen')">Kitchen</button>
             <button class="add-btn" onclick="addSection('Living Room')">Living Room</button>
             <button class="add-btn" onclick="addSection('Dining Room')">Dining Room</button>
             <button class="add-btn" onclick="addSection('Family Room')">Family Room</button>
             <button class="add-btn" onclick="addSection('Laundry')">Laundry</button>
-            <button class="add-btn" onclick="addSection('Hallway/Stairs')">Hallway/Stairs</button>
+            <button class="add-btn" onclick="addSection('Hallway 1')">Hallway 1</button>
+            <button class="add-btn" onclick="addSection('Hallway 2')">Hallway 2</button>
+            <button class="add-btn" onclick="addSection('Stairway 1')">Stairway 1</button>
+            <button class="add-btn" onclick="addSection('Stairway 2')">Stairway 2</button>
             <button class="add-btn" onclick="addSection('Basement')">Basement</button>
             <button class="add-btn" onclick="addSection('Entry')">Entry</button>
             <button class="add-btn" onclick="addSection('Front Yard')">Front Yard</button>
@@ -428,39 +462,42 @@
         </div>
     </div>
 
-    <div id="sectionsContainer"></div>
-
-    <div class="action-btns">
-        <button class="pdf-btn" onclick="generatePDF()">📄 Download PDF Report</button>
-        <button class="export" onclick="exportToExcel()">📊 Download Excel Report</button>
-        <button class="submit" onclick="emailReport()">📧 Complete & Email Report</button>
-    </div>
-
     <script>
         // Initialize EmailJS
         emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");
 
-        let sectionCounter = {};
         let currentPhotoTarget = null;
         let videoStream = null;
+        let currentZoom = 1;
+        let flashEnabled = false;
 
         // Default items for each section type
         const sectionItems = {
-            'Bedrooms': ['Door/Knob/Lock', 'Closet/Door/Track/Shelving', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen', 'CO/Smoke Detector', 'Switch/Outlet'],
-            'Bathrooms': ['Cabinet/Counter/Shelving', 'Door/Knob/Lock', 'Exhaust Fan', 'Flooring/Baseboard', 'Light Fixture', 'Medicine Cabinet/Mirror', 'Plumbing/Drain', 'Shower Door/Rail/Curtain', 'Sink/Faucet', 'Switch/Outlet', 'Toilet', 'Toilet Paper Holder', 'Toilet Turns off appropriately upon flushing', 'Towel Rack', 'Tub/Shower', 'Wall/Ceiling', 'Window/Lock/Screen'],
+            'Bedroom 1': ['Door/Knob/Lock', 'Closet/Door/Track/Shelving', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen', 'CO/Smoke Detector', 'Switch/Outlet'],
+            'Bedroom 2': ['Door/Knob/Lock', 'Closet/Door/Track/Shelving', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen', 'CO/Smoke Detector', 'Switch/Outlet'],
+            'Bedroom 3': ['Door/Knob/Lock', 'Closet/Door/Track/Shelving', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen', 'CO/Smoke Detector', 'Switch/Outlet'],
+            'Bedroom 4': ['Door/Knob/Lock', 'Closet/Door/Track/Shelving', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen', 'CO/Smoke Detector', 'Switch/Outlet'],
+            'Bedroom 5': ['Door/Knob/Lock', 'Closet/Door/Track/Shelving', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen', 'CO/Smoke Detector', 'Switch/Outlet'],
+            'Bathroom 1': ['Cabinet/Counter/Shelving', 'Door/Knob/Lock', 'Exhaust Fan', 'Flooring/Baseboard', 'Light Fixture', 'Medicine Cabinet/Mirror', 'Plumbing/Drain', 'Shower Door/Rail/Curtain', 'Sink/Faucet', 'Switch/Outlet', 'Toilet', 'Toilet Paper Holder', 'Toilet Turns off appropriately upon flushing', 'Towel Rack', 'Tub/Shower', 'Wall/Ceiling', 'Window/Lock/Screen'],
+            'Bathroom 2': ['Cabinet/Counter/Shelving', 'Door/Knob/Lock', 'Exhaust Fan', 'Flooring/Baseboard', 'Light Fixture', 'Medicine Cabinet/Mirror', 'Plumbing/Drain', 'Shower Door/Rail/Curtain', 'Sink/Faucet', 'Switch/Outlet', 'Toilet', 'Toilet Paper Holder', 'Toilet Turns off appropriately upon flushing', 'Towel Rack', 'Tub/Shower', 'Wall/Ceiling', 'Window/Lock/Screen'],
+            'Bathroom 3': ['Cabinet/Counter/Shelving', 'Door/Knob/Lock', 'Exhaust Fan', 'Flooring/Baseboard', 'Light Fixture', 'Medicine Cabinet/Mirror', 'Plumbing/Drain', 'Shower Door/Rail/Curtain', 'Sink/Faucet', 'Switch/Outlet', 'Toilet', 'Toilet Paper Holder', 'Toilet Turns off appropriately upon flushing', 'Towel Rack', 'Tub/Shower', 'Wall/Ceiling', 'Window/Lock/Screen'],
+            'Bathroom 4': ['Cabinet/Counter/Shelving', 'Door/Knob/Lock', 'Exhaust Fan', 'Flooring/Baseboard', 'Light Fixture', 'Medicine Cabinet/Mirror', 'Plumbing/Drain', 'Shower Door/Rail/Curtain', 'Sink/Faucet', 'Switch/Outlet', 'Toilet', 'Toilet Paper Holder', 'Toilet Turns off appropriately upon flushing', 'Towel Rack', 'Tub/Shower', 'Wall/Ceiling', 'Window/Lock/Screen'],
             'Kitchen': ['Cabinets/Drawers', 'Counter', 'Dishwasher', 'Faucet/Plumbing', 'Flooring/Baseboard', 'Light Fixture', 'Microwave', 'Oven', 'Range/Fan/Hood/Filter', 'Refrigerator', 'Sink/Disposal', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
             'Living Room': ['Flooring/Baseboard', 'Light Fixture/Fan', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
             'Dining Room': ['Flooring/Baseboard', 'Light Fixture/Fan', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
             'Family Room': ['Flooring/Baseboard', 'Light Fixture/Fan', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
             'Laundry': ['Flooring/Baseboard', 'Light Fixture', 'Switch/Outlet', 'Wall/Ceiling', 'Other'],
-            'Hallway/Stairs': ['Flooring/Baseboard', 'Light Fixture', 'Smoke/CO Detector', 'Switch/Outlet', 'Wall/Ceiling'],
+            'Hallway 1': ['Flooring/Baseboard', 'Light Fixture', 'Smoke/CO Detector', 'Switch/Outlet', 'Wall/Ceiling'],
+            'Hallway 2': ['Flooring/Baseboard', 'Light Fixture', 'Smoke/CO Detector', 'Switch/Outlet', 'Wall/Ceiling'],
+            'Stairway 1': ['Flooring/Baseboard', 'Light Fixture', 'Smoke/CO Detector', 'Switch/Outlet', 'Wall/Ceiling', 'Handrail'],
+            'Stairway 2': ['Flooring/Baseboard', 'Light Fixture', 'Smoke/CO Detector', 'Switch/Outlet', 'Wall/Ceiling', 'Handrail'],
             'Basement': ['Door/Knob/Lock', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Other', 'Smoke detector', 'Switch/Outlet', 'Wall/Ceiling', 'Window Covering', 'Window/Lock/Screen'],
             'Entry': ['Door/Knob/Lock', 'Doorbell', 'Flooring/Baseboard', 'Light Fixture/Fan', 'Other', 'Security/Screen Door', 'Switch/Outlet', 'Wall/Ceiling'],
             'Front Yard': ['Building Exterior', 'Landscaping', 'Walkway/Driveway', 'Other'],
             'Back Yard': ['Patio/Deck/Balcony', 'Landscaping', 'Fence', 'Light Fixture', 'Other'],
             'Side Yard': ['Landscaping', 'Fence', 'Walkway', 'Other'],
             'Garage': ['Door/Opener', 'Flooring', 'Light Fixture', 'Wall/Ceiling', 'Window/Lock', 'Other'],
-            'Systems': ['Furnace/Heating', 'Air Conditioning', 'Water Heater', 'Electrical Panel', 'Plumbing', 'Other'],
+            'Systems': ['Furnace/Heating', 'Furnace Filter Size', 'Air Conditioning', 'Water Heater', 'Electrical Panel', 'Plumbing', 'Other'],
             'Other': []
         };
 
@@ -489,24 +526,18 @@
 
         // Section Management
         function addSection(type) {
-            if (!sectionCounter[type]) {
-                sectionCounter[type] = 0;
-            }
-            sectionCounter[type]++;
-
-            const sectionId = `${type.toLowerCase().replace(/\s+/g, '-')}-${sectionCounter[type]}`;
-            const sectionName = sectionCounter[type] > 1 ? `${type} ${sectionCounter[type]}` : type;
+            const sectionId = `${type.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
 
             const section = document.createElement('div');
             section.className = 'section';
             section.id = sectionId;
             section.innerHTML = `
                 <div class="section-header">
-                    <h2>${sectionName}</h2>
+                    <h2>${type}</h2>
                     <button class="remove-section" onclick="removeSection('${sectionId}')">Remove Section</button>
                 </div>
                 <div class="items-container" id="${sectionId}-items"></div>
-                <button class="add-item-btn" onclick="showAddItemModal('${sectionId}', '${sectionName}')">+ Add Custom Item</button>
+                <button class="add-item-btn" onclick="showAddItemModal('${sectionId}', '${type}')">+ Add Custom Item</button>
             `;
 
             document.getElementById('sectionsContainer').appendChild(section);
@@ -514,7 +545,7 @@
             // Add default items for this section type
             const items = sectionItems[type] || [];
             items.forEach(itemName => {
-                addItem(sectionId, sectionName, itemName);
+                addItem(sectionId, type, itemName);
             });
         }
 
@@ -535,6 +566,10 @@
         function addItem(sectionId, sectionName, itemName) {
             const itemId = `${sectionId}-item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             const itemsContainer = document.getElementById(`${sectionId}-items`);
+
+            // Check if this is a Window Covering item to add measurement tool
+            const hasMeasurement = itemName.toLowerCase().includes('window covering');
+            const isFurnaceFilter = itemName.toLowerCase().includes('furnace filter size');
 
             const item = document.createElement('div');
             item.className = 'item';
@@ -558,6 +593,21 @@
                         <option value="TD">TD - Tenant Damaged</option>
                     </select>
                 </div>
+                ${hasMeasurement ? `
+                <div class="form-group">
+                    <label>Blind Size (Width x Height)</label>
+                    <div class="measure-input">
+                        <input type="number" class="blind-width" placeholder="Width" step="0.25"> inches x
+                        <input type="number" class="blind-height" placeholder="Height" step="0.25"> inches
+                    </div>
+                </div>
+                ` : ''}
+                ${isFurnaceFilter ? `
+                <div class="form-group">
+                    <label>Filter Size</label>
+                    <input type="text" class="filter-size" placeholder="e.g., 16x25x1">
+                </div>
+                ` : ''}
                 <div class="form-group">
                     <label>Action Item</label>
                     <input type="text" class="action-item" placeholder="Enter action needed">
@@ -587,14 +637,26 @@
             const video = document.getElementById('video');
 
             try {
-                videoStream = await navigator.mediaDevices.getUserMedia({ 
+                const constraints = {
                     video: { 
                         facingMode: 'environment',
                         width: { ideal: 1920 },
                         height: { ideal: 1080 }
-                    } 
-                });
+                    }
+                };
+
+                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = videoStream;
+                
+                // Get video track for zoom support
+                const track = videoStream.getVideoTracks()[0];
+                const capabilities = track.getCapabilities();
+                
+                // Check if zoom is supported
+                if (capabilities.zoom) {
+                    currentZoom = track.getSettings().zoom || 1;
+                }
+
                 cameraView.style.display = 'flex';
             } catch (err) {
                 alert('Camera access denied or not available. Please check your browser settings.');
@@ -614,6 +676,63 @@
             video.srcObject = null;
             cameraView.style.display = 'none';
             currentPhotoTarget = null;
+            currentZoom = 1;
+            flashEnabled = false;
+        }
+
+        function toggleZoom() {
+            if (!videoStream) return;
+            
+            const track = videoStream.getVideoTracks()[0];
+            const capabilities = track.getCapabilities();
+            
+            if (!capabilities.zoom) {
+                alert('Zoom not supported on this device');
+                return;
+            }
+
+            // Cycle through zoom levels: 1x, 2x, 3x, back to 1x
+            if (currentZoom === 1) {
+                currentZoom = 2;
+            } else if (currentZoom === 2) {
+                currentZoom = 3;
+            } else {
+                currentZoom = 1;
+            }
+
+            const maxZoom = capabilities.zoom.max;
+            const actualZoom = Math.min(currentZoom, maxZoom);
+            
+            track.applyConstraints({
+                advanced: [{ zoom: actualZoom }]
+            });
+
+            document.getElementById('zoomBtn').textContent = `🔍 Zoom ${currentZoom}x`;
+        }
+
+        async function toggleFlash() {
+            if (!videoStream) return;
+            
+            const track = videoStream.getVideoTracks()[0];
+            const capabilities = track.getCapabilities();
+            
+            if (!capabilities.torch) {
+                alert('Flash/torch not supported on this device');
+                return;
+            }
+
+            flashEnabled = !flashEnabled;
+            
+            try {
+                await track.applyConstraints({
+                    advanced: [{ torch: flashEnabled }]
+                });
+                
+                document.getElementById('flashBtn').textContent = flashEnabled ? '💡 Flash On' : '💡 Flash Off';
+            } catch (err) {
+                console.error('Flash error:', err);
+                alert('Unable to control flash on this device');
+            }
         }
 
         function capturePhoto() {
@@ -658,19 +777,57 @@
 
         // Event Listeners
         document.getElementById('captureBtn').addEventListener('click', capturePhoto);
+        document.getElementById('zoomBtn').addEventListener('click', toggleZoom);
+        document.getElementById('flashBtn').addEventListener('click', toggleFlash);
         document.getElementById('closeCameraBtn').addEventListener('click', closeCamera);
 
-        // Excel Export
+        // Excel Export with Two Tabs
         function exportToExcel() {
             const wb = XLSX.utils.book_new();
             
-            const damagesData = [
+            // Header info
+            const propertyAddress = document.getElementById('propertyAddress').value;
+            const tenantName = document.getElementById('tenantName').value;
+            const inspectorName = document.getElementById('inspectorName').value;
+            const inspectionDate = document.getElementById('inspectionDate').textContent;
+            const inspectionTime = document.getElementById('inspectionTime').textContent;
+
+            // DATA TAB - All items
+            const dataTabData = [
                 ['DO NOT MODIFY THIS PAGE. VALUES WILL UPDATE WHEN DOWNLOADING'],
                 [],
+                ['Property Address:', propertyAddress],
+                ['Tenant Name:', tenantName],
+                ['Agent/Inspector:', inspectorName],
+                ['Inspection Date:', inspectionDate],
+                ['Inspection Time:', inspectionTime],
+                [],
+                ['CONDITION KEY:'],
+                ['N = New', 'E = Excellent', 'S = Satisfactory', 'F = Fair'],
+                ['P = Poor', '! = Action', 'D = Damaged', 'TD = Tenant Damaged'],
+                [],
                 [null, null, 'Conditions'],
-                ['Area', 'Details', '\r\nN=New\r\nE=Excellent', '\r\nS=Satisfactory\r\nF=Fair\r\nP=Poor', '! - Action Items', '\r\nD=Damaged\r\nTD=Tenant Damaged', 'Action Item', 'Comments', 'Costs']
+                ['Area', 'Details', '\r\nN=New\r\nE=Excellent', '\r\nS=Satisfactory\r\nF=Fair\r\nP=Poor', '! - Action Items', '\r\nD=Damaged\r\nTD=Tenant Damaged', 'Action Item', 'Comments']
             ];
 
+            // DAMAGES TAB - Only damaged/poor/action items
+            const damagesTabData = [
+                ['DO NOT MODIFY THIS PAGE. VALUES WILL UPDATE WHEN DOWNLOADING'],
+                [],
+                ['Property Address:', propertyAddress],
+                ['Tenant Name:', tenantName],
+                ['Agent/Inspector:', inspectorName],
+                ['Inspection Date:', inspectionDate],
+                ['Inspection Time:', inspectionTime],
+                [],
+                ['CONDITION KEY:'],
+                ['P = Poor', '! = Action', 'D = Damaged', 'TD = Tenant Damaged'],
+                [],
+                [null, null, 'Conditions'],
+                ['Area', 'Details', '\r\nN=New\r\nE=Excellent', '\r\nS=Satisfactory\r\nF=Fair\r\nP=Poor', '! - Action Items', '\r\nD=Damaged\r\nTD=Tenant Damaged', 'Action Item', 'Comments']
+            ];
+
+            // Collect all items
             const sections = document.querySelectorAll('.section');
             sections.forEach(section => {
                 const sectionName = section.querySelector('h2').textContent;
@@ -680,7 +837,22 @@
                     const itemName = item.querySelector('h4').textContent;
                     const condition = item.querySelector('.condition').value;
                     const actionItem = item.querySelector('.action-item').value;
-                    const comments = item.querySelector('.comments').value;
+                    let comments = item.querySelector('.comments').value;
+
+                    // Add blind measurements if present
+                    const blindWidth = item.querySelector('.blind-width');
+                    const blindHeight = item.querySelector('.blind-height');
+                    if (blindWidth && blindHeight && (blindWidth.value || blindHeight.value)) {
+                        const measurement = `Blind Size: ${blindWidth.value || '?'}" x ${blindHeight.value || '?'}"`;
+                        comments = comments ? `${measurement}. ${comments}` : measurement;
+                    }
+
+                    // Add filter size if present
+                    const filterSize = item.querySelector('.filter-size');
+                    if (filterSize && filterSize.value) {
+                        const size = `Filter Size: ${filterSize.value}`;
+                        comments = comments ? `${size}. ${comments}` : size;
+                    }
 
                     if (condition !== '-' || comments.trim() || actionItem.trim()) {
                         // Determine which column the condition goes in
@@ -696,7 +868,7 @@
                             condDamage = condition;
                         }
                         
-                        damagesData.push([
+                        const row = [
                             sectionName,
                             itemName,
                             condNE,
@@ -704,18 +876,31 @@
                             condAction,
                             condDamage,
                             actionItem,
-                            comments,
-                            ''
-                        ]);
+                            comments
+                        ];
+
+                        // Add to Data tab
+                        dataTabData.push(row);
+
+                        // Add to Damages tab only if condition is D, TD, P, or !
+                        if (condition === 'D' || condition === 'TD' || condition === 'P' || condition === '!') {
+                            damagesTabData.push(row);
+                        }
                     }
                 });
             });
 
-            const ws = XLSX.utils.aoa_to_sheet(damagesData);
-            XLSX.utils.book_append_sheet(wb, ws, 'Damages');
+            // Create Data sheet
+            const wsData = XLSX.utils.aoa_to_sheet(dataTabData);
+            XLSX.utils.book_append_sheet(wb, wsData, 'Data');
 
+            // Create Damages sheet
+            const wsDamages = XLSX.utils.aoa_to_sheet(damagesTabData);
+            XLSX.utils.book_append_sheet(wb, wsDamages, 'Damages');
+
+            // Generate filename
             const date = new Date().toISOString().split('T')[0];
-            const address = document.getElementById('propertyAddress').value.replace(/[^a-z0-9]/gi, '_') || 'property';
+            const address = propertyAddress.replace(/[^a-z0-9]/gi, '_') || 'property';
             const filename = `MoveOut_${address}_${date}.xlsx`;
 
             XLSX.writeFile(wb, filename);
@@ -785,8 +970,22 @@
                         const itemName = item.querySelector('h4').textContent;
                         const condition = item.querySelector('.condition').value;
                         const actionItem = item.querySelector('.action-item').value;
-                        const comments = item.querySelector('.comments').value;
+                        let comments = item.querySelector('.comments').value;
                         const photos = item.querySelectorAll('.photos img');
+
+                        // Add measurements to comments
+                        const blindWidth = item.querySelector('.blind-width');
+                        const blindHeight = item.querySelector('.blind-height');
+                        if (blindWidth && blindHeight && (blindWidth.value || blindHeight.value)) {
+                            const measurement = `Blind Size: ${blindWidth.value || '?'}" x ${blindHeight.value || '?'}"`;
+                            comments = comments ? `${measurement}. ${comments}` : measurement;
+                        }
+
+                        const filterSize = item.querySelector('.filter-size');
+                        if (filterSize && filterSize.value) {
+                            const size = `Filter Size: ${filterSize.value}`;
+                            comments = comments ? `${size}. ${comments}` : size;
+                        }
 
                         if (yPos > 240) {
                             pdf.addPage();
