@@ -2,21 +2,21 @@
   "name": "Move Out Inspection - AG Management",
   "short_name": "Move Out",
   "description": "Professional move-out inspection app for property management",
-  "start_url": "/",
+  "start_url": "/moveout-inspection/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": "/moveout-inspection/",
   "icons": [
     {
-      "src": "icon-192.png",
+       "src": "/moveout-inspection/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+  "src": "/moveout-inspection/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
