@@ -1,14 +1,14 @@
 const CACHE_NAME = 'moveout-inspection-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js'
-];
+     '/moveout-inspection/',
+     '/moveout-inspection/index.html',
+     '/moveout-inspection/manifest.json',
+     '/moveout-inspection/icon-192.png',
+     '/moveout-inspection/icon-512.png',
+     'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+     'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+     'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js'
+   ];
 
 // Install event - cache files
 self.addEventListener('install', (event) => {
