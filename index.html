@@ -1305,7 +1305,7 @@ async function emailReport() {
         });
 
         // Send to N8N webhook
-        const N8N_WEBHOOK_URL = 'YOUR_N8N_WEBHOOK_URL_HERE';
+        const N8N_WEBHOOK_URL = 'https://n8n.335.rent/webhook-test/moveout-inspection';
         
         const response = await fetch(N8N_WEBHOOK_URL, {
             method: 'POST',
