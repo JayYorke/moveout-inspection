@@ -434,32 +434,42 @@ function loadHist(){
     c.innerHTML=h.map(r=>`<div class="report-card"><h3>${r.property_address}</h3><p>Tenant: ${r.tenant_name}</p><p>Inspector: ${r.inspector_name}</p><p>Date: ${r.inspection_date} ${r.inspection_time}</p><div class="report-card-actions"><button class="resend-btn" onclick="resend(${r.id})">📧 Resend Report</button></div></div>`).join('');
 }
 
+<script>
+/* ...everything above stays the same... */
+
 async function resend(id){
-    const h=JSON.parse(localStorage.getItem('inspections')||'[]'),r=h.find(x=>x.id===id);
-    if(!r){alert('Report not found');return;}
-    document.getElementById('overlay').style.display='block';
-    document.getElementById('loading').classList.remove('hidden');
-    try {
-  // --- shrink payload (remove raw photos from JSON to avoid 100MB+ uploads) ---
-  r.sections.forEach(s => s.items.forEach(it => { it.photos = []; }));
+  const h = JSON.parse(localStorage.getItem('inspections') || '[]');
+  const r = h.find(x => x.id === id);
+  if (!r) { alert('Report not found'); return; }
 
-  // --- send as FormData (no Content-Type header) ---
-  const fd = new FormData();
-  fd.append('body', JSON.stringify(r));
+  document.getElementById('overlay').style.display = 'block';
+  document.getElementById('loading').classList.remove('hidden');
 
-  const res = await fetch(URL, {
-    method: 'POST',
-    body: fd, // 👈 no headers here — prevents preflight issues on mobile
-  });
+  try {
+    // shrink payload (we already have photos inside the PDF)
+    r.sections.forEach(s => s.items.forEach(it => { it.photos = []; }));
 
-  if (res.ok) {
-    alert('✅ Report resent successfully!');
-  } else {
-    throw new Error('Failed with HTTP ' + res.status);
+    // send as FormData (no explicit headers)
+    const fd = new FormData();
+    fd.append('body', JSON.stringify(r));
+
+    const res = await fetch(URL, { method: 'POST', body: fd });
+
+    if (res.ok) {
+      alert('✅ Report resent successfully!');
+    } else {
+      throw new Error('Failed with HTTP ' + res.status);
+    }
+  } catch (e) {
+    alert('❌ Resend failed: ' + e.message);
+  } finally {
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('loading').classList.add('hidden');
   }
-} catch (e) {
-  alert('❌ Resend failed: ' + e.message);
-} finally {
-  document.getElementById('overlay').style.display = 'none';
-  document.getElementById('loading').classList.add('hidden');
 }
+
+/* keep this call at the very end so the history renders on page load */
+loadHist();
+</script>
+</body>
+</html>
