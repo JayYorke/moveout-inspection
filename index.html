@@ -435,25 +435,34 @@ function loadHist(){
 }
 
 <script>
-/* ...everything above stays the same... */
+/* ... everything above unchanged ... */
 
-async function resend(id){
+async function resend(id) {
   const h = JSON.parse(localStorage.getItem('inspections') || '[]');
-  const r = h.find(x => x.id === id);
+  const r = h.find((x) => x.id === id);
   if (!r) { alert('Report not found'); return; }
 
   document.getElementById('overlay').style.display = 'block';
   document.getElementById('loading').classList.remove('hidden');
 
   try {
-    // shrink payload (we already have photos inside the PDF)
-    r.sections.forEach(s => s.items.forEach(it => { it.photos = []; }));
+    // shrink payload: remove raw photos from JSON (they're already embedded in the generated PDF)
+    if (Array.isArray(r.sections)) {
+      r.sections.forEach((s) => {
+        if (Array.isArray(s.items)) {
+          s.items.forEach((it) => { it.photos = []; });
+        }
+      });
+    }
 
-    // send as FormData (no explicit headers)
+    // send as FormData (do NOT set headers)
     const fd = new FormData();
     fd.append('body', JSON.stringify(r));
 
-    const res = await fetch(URL, { method: 'POST', body: fd });
+    const res = await fetch(URL, {
+      method: 'POST',
+      body: fd,
+    });
 
     if (res.ok) {
       alert('✅ Report resent successfully!');
@@ -461,15 +470,12 @@ async function resend(id){
       throw new Error('Failed with HTTP ' + res.status);
     }
   } catch (e) {
-    alert('❌ Resend failed: ' + e.message);
+    alert('❌ Resend failed: ' + (e?.message || e));
   } finally {
     document.getElementById('overlay').style.display = 'none';
     document.getElementById('loading').classList.add('hidden');
   }
 }
 
-/* keep this call at the very end so the history renders on page load */
 loadHist();
 </script>
-</body>
-</html>
