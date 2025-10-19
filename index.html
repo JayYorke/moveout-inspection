@@ -47,7 +47,7 @@
         .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .item-header h4 { color: #333; font-size: 1em; }
         .remove-item { background: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: 600; }
-        .photo-btn { background: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; margin: 10px 5px 10px 0; font-size: 0.95em; font-weight: 600; }
+        .photo-btn { background: #007bff; color: white; border: none; padding: 16px 24px; border-radius: 8px; cursor: pointer; margin: 10px 5px 10px 0; font-size: 1em; font-weight: 600; min-height: 48px; touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
         .photo-btn:active { background: #0056b3; transform: scale(0.98); }
         .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; }
         .photo { position: relative; width: 100%; padding-top: 100%; }
@@ -71,9 +71,9 @@
         .camera-view { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: black; z-index: 2000; display: none; flex-direction: column; }
         .camera-view video { width: 100%; height: calc(100vh - 120px); object-fit: cover; }
         .camera-controls { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 20px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .camera-btn { background: white; color: black; border: none; padding: 14px 20px; border-radius: 50px; cursor: pointer; font-size: 0.9em; font-weight: 600; box-shadow: 0 4px 8px rgba(0,0,0,0.3); touch-action: manipulation; }
+        .camera-btn { background: white; color: black; border: none; padding: 18px 24px; border-radius: 50px; cursor: pointer; font-size: 1em; font-weight: 600; box-shadow: 0 4px 8px rgba(0,0,0,0.3); touch-action: manipulation; min-height: 56px; position: relative; z-index: 10; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
         .camera-btn:active { transform: scale(0.95); opacity: 0.8; }
-        .capture-btn { background: #007bff; color: white; grid-column: 1 / -1; font-size: 1.1em; }
+        .capture-btn { background: #007bff; color: white; grid-column: 1 / -1; font-size: 1.2em; min-height: 64px; }
         .flash-btn { background: #ffc107; color: black; }
         .zoom-btn { background: #17a2b8; color: white; }
         .close-camera-btn { background: #dc3545; color: white; grid-column: 1 / -1; }
@@ -168,7 +168,10 @@
     </div>
 <script>
 const URL='https://n8n.335.rent/webhook/moveout-inspection';
-const items={'Bedroom 1':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 2':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 3':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 4':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 5':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bathroom 1':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 2':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 3':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 4':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Kitchen':['Cabinets/Drawers','Counter','Dishwasher','Faucet/Plumbing','Flooring/Baseboard','Light Fixture','Microwave','Oven','Range/Fan/Hood/Filter','Refrigerator','Sink/Disposal','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Living Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Dining Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Family Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Laundry':['Flooring/Baseboard','Light Fixture','Switch/Outlet','Wall/Ceiling','Other'],'Hallway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Hallway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Stairway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling','Handrail'],'Stairway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling','Handrail'],'Basement':['Door/Knob/Lock','Flooring/Baseboard','Light Fixture/Fan','Other','Smoke detector','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Entry':['Door/Knob/Lock','Doorbell','Flooring/Baseboard','Light Fixture/Fan','Other','Security/Screen Door','Switch/Outlet','Wall/Ceiling'],'Front Yard':['Building Exterior','Landscaping','Walkway/Driveway','Other'],'Back Yard':['Patio/Deck/Balcony','Landscaping','Fence','Light Fixture','Other'],'Side Yard':['Landscaping','Fence','Walkway','Other'],'Garage':['Door/Opener','Flooring','Light Fixture','Wall/Ceiling','Window/Lock','Other'],'Systems':['Furnace/Heating','Furnace Filter Size','Air Conditioning','Water Heater','Electrical Panel','Plumbing','Other'],'Other':[]};
+const HISTORY_URL='https://n8n.335.rent/webhook/moveout-inspection-history'; // For future server-side storage
+const USE_SERVER_HISTORY = false; // Set to true when server endpoint is ready
+
+const items={'Bedroom 1':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 2':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 3':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 4':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 5':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bathroom 1':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 2':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 3':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 4':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Kitchen':['Cabinets/Drawers','Counter','Dishwasher','Faucet/Plumbing','Flooring/Baseboard','Light Fixture','Microwave','Oven','Range/Fan/Hood/Filter','Refrigerator','Sink/Disposal','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Living Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Dining Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Family Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Laundry':['Flooring/Baseboard','Light Fixture','Switch/Outlet','Wall/Ceiling','Other'],'Hallway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Hallway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Stairway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling','Handrail'],'Stairway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outfit','Wall/Ceiling','Handrail'],'Basement':['Door/Knob/Lock','Flooring/Baseboard','Light Fixture/Fan','Other','Smoke detector','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Entry':['Door/Knob/Lock','Doorbell','Flooring/Baseboard','Light Fixture/Fan','Other','Security/Screen Door','Switch/Outlet','Wall/Ceiling'],'Front Yard':['Building Exterior','Landscaping','Walkway/Driveway','Other'],'Back Yard':['Patio/Deck/Balcony','Landscaping','Fence','Light Fixture','Other'],'Side Yard':['Landscaping','Fence','Walkway','Other'],'Garage':['Door/Opener','Flooring','Light Fixture','Wall/Ceiling','Window/Lock','Other'],'Systems':['Furnace/Heating','Furnace Filter Size','Air Conditioning','Water Heater','Electrical Panel','Plumbing','Other'],'Other':[]};
 let tgt=null,str=null,zm=1,fl=false,track=null;
 
 function startNew(){document.getElementById('landingPage').style.display='none';document.getElementById('formPage').style.display='block';upd();gps();}
@@ -283,10 +286,29 @@ function remPh(id){
     if(confirm('Delete photo?'))document.getElementById(id).remove();
 }
 
-document.getElementById('captureBtn').addEventListener('click',cap);
-document.getElementById('closeCameraBtn').addEventListener('click',closeCam);
-document.getElementById('zoomBtn').addEventListener('click',toggleZoom);
-document.getElementById('flashBtn').addEventListener('click',toggleFlash);
+document.getElementById('captureBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    cap();
+}, { passive: false });
+
+document.getElementById('closeCameraBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    closeCam();
+}, { passive: false });
+
+document.getElementById('zoomBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleZoom();
+}, { passive: false });
+
+document.getElementById('flashBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFlash();
+}, { passive: false });
 
 async function submit(){
     const a=document.getElementById('addr').value,t=document.getElementById('tenant').value,i=document.getElementById('inspector').value;
