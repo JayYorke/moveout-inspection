@@ -434,7 +434,6 @@ function loadHist(){
     c.innerHTML=h.map(r=>`<div class="report-card"><h3>${r.property_address}</h3><p>Tenant: ${r.tenant_name}</p><p>Inspector: ${r.inspector_name}</p><p>Date: ${r.inspection_date} ${r.inspection_time}</p><div class="report-card-actions"><button class="resend-btn" onclick="resend(${r.id})">📧 Resend Report</button></div></div>`).join('');
 }
 
-<script>
 /* ... everything above unchanged ... */
 
 async function resend(id) {
@@ -478,4 +477,3 @@ async function resend(id) {
 }
 
 loadHist();
-</script>
