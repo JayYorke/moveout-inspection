@@ -439,19 +439,27 @@ async function resend(id){
     if(!r){alert('Report not found');return;}
     document.getElementById('overlay').style.display='block';
     document.getElementById('loading').classList.remove('hidden');
-    try{
-        const res=await fetch(URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({body:r})});
-        if(res.ok)alert('✅ Report resent successfully!');
-        else throw new Error('Failed');
-    }catch(e){
-        alert('❌ Resend failed: '+e.message);
-    }finally{
-        document.getElementById('overlay').style.display='none';
-        document.getElementById('loading').classList.add('hidden');
-    }
-}
+    try {
+  // --- shrink payload (remove raw photos from JSON to avoid 100MB+ uploads) ---
+  r.sections.forEach(s => s.items.forEach(it => { it.photos = []; }));
 
-loadHist();
-</script>
-</body>
-</html>
+  // --- send as FormData (no Content-Type header) ---
+  const fd = new FormData();
+  fd.append('body', JSON.stringify(r));
+
+  const res = await fetch(URL, {
+    method: 'POST',
+    body: fd, // 👈 no headers here — prevents preflight issues on mobile
+  });
+
+  if (res.ok) {
+    alert('✅ Report resent successfully!');
+  } else {
+    throw new Error('Failed with HTTP ' + res.status);
+  }
+} catch (e) {
+  alert('❌ Resend failed: ' + e.message);
+} finally {
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('loading').classList.add('hidden');
+}
