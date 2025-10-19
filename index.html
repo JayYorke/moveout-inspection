@@ -8,8 +8,6 @@
     <meta name="apple-mobile-web-app-title" content="Move Out Inspection">
     <meta name="theme-color" content="#007bff">
     <title>Move Out Inspection - AG Management</title>
-    <link rel="manifest" href="/moveout-inspection/manifest.json">
-    <link rel="apple-touch-icon" href="/moveout-inspection/icon-192.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -434,8 +432,6 @@ function loadHist(){
     c.innerHTML=h.map(r=>`<div class="report-card"><h3>${r.property_address}</h3><p>Tenant: ${r.tenant_name}</p><p>Inspector: ${r.inspector_name}</p><p>Date: ${r.inspection_date} ${r.inspection_time}</p><div class="report-card-actions"><button class="resend-btn" onclick="resend(${r.id})">📧 Resend Report</button></div></div>`).join('');
 }
 
-/* ... everything above unchanged ... */
-
 async function resend(id) {
     const h = JSON.parse(localStorage.getItem('inspections') || '[]');
     const r = h.find((x) => x.id === id);
@@ -478,3 +474,8 @@ async function resend(id) {
         document.getElementById('loading').classList.add('hidden');
     }
 }
+
+loadHist();
+</script>
+</body>
+</html>
