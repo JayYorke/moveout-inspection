@@ -168,8 +168,8 @@
     </div>
 <script>
 const URL='https://n8n.335.rent/webhook/moveout-inspection';
-const HISTORY_URL='https://n8n.335.rent/webhook/moveout-inspection-history'; // For future server-side storage
-const USE_SERVER_HISTORY = false; // Set to true when server endpoint is ready
+const HISTORY_URL='https://n8n.335.rent/webhook/moveout-inspection-history';
+const USE_SERVER_HISTORY = true; // Using SharePoint/OneDrive for shared history
 
 const items={'Bedroom 1':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 2':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 3':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 4':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 5':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bathroom 1':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 2':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 3':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 4':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Kitchen':['Cabinets/Drawers','Counter','Dishwasher','Faucet/Plumbing','Flooring/Baseboard','Light Fixture','Microwave','Oven','Range/Fan/Hood/Filter','Refrigerator','Sink/Disposal','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Living Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Dining Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Family Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Laundry':['Flooring/Baseboard','Light Fixture','Switch/Outlet','Wall/Ceiling','Other'],'Hallway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Hallway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Stairway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling','Handrail'],'Stairway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outfit','Wall/Ceiling','Handrail'],'Basement':['Door/Knob/Lock','Flooring/Baseboard','Light Fixture/Fan','Other','Smoke detector','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Entry':['Door/Knob/Lock','Doorbell','Flooring/Baseboard','Light Fixture/Fan','Other','Security/Screen Door','Switch/Outlet','Wall/Ceiling'],'Front Yard':['Building Exterior','Landscaping','Walkway/Driveway','Other'],'Back Yard':['Patio/Deck/Balcony','Landscaping','Fence','Light Fixture','Other'],'Side Yard':['Landscaping','Fence','Walkway','Other'],'Garage':['Door/Opener','Flooring','Light Fixture','Wall/Ceiling','Window/Lock','Other'],'Systems':['Furnace/Heating','Furnace Filter Size','Air Conditioning','Water Heater','Electrical Panel','Plumbing','Other'],'Other':[]};
 let tgt=null,str=null,zm=1,fl=false,track=null;
@@ -234,9 +234,14 @@ function cap(){
     if(vid.readyState===vid.HAVE_ENOUGH_DATA){
         flash.classList.add('active');
         setTimeout(()=>flash.classList.remove('active'),100);
-        c.width=vid.videoWidth;
-        c.height=vid.videoHeight;
-        ctx.drawImage(vid,0,0);
+        
+        // Resize for mobile - max 1200px width to reduce file size
+        const maxWidth = 1200;
+        const scale = Math.min(1, maxWidth / vid.videoWidth);
+        c.width = vid.videoWidth * scale;
+        c.height = vid.videoHeight * scale;
+        
+        ctx.drawImage(vid, 0, 0, c.width, c.height);
         c.toBlob(b=>{
             const r=new FileReader();
             r.onloadend=()=>{
@@ -250,7 +255,7 @@ function cap(){
                 },1000);
             };
             r.readAsDataURL(b);
-        },'image/jpeg',0.9);
+        },'image/jpeg',0.7); // Reduced quality from 0.9 to 0.7 for smaller file size
     }
 }
 
@@ -315,9 +320,12 @@ async function submit(){
     if(!a||!t||!i){alert('Please fill in all required fields');return;}
     document.getElementById('overlay').style.display='block';
     document.getElementById('loading').classList.remove('hidden');
+    
     try{
         const dt=document.getElementById('date').textContent,tm=document.getElementById('time').textContent,g=document.getElementById('gps').textContent,
         data={property_address:a,tenant_name:t,inspector_name:i,inspection_date:dt,inspection_time:tm,gps_location:g,sections:[]};
+        
+        let totalPhotos = 0;
         document.querySelectorAll('.section').forEach(s=>{
             const sn=s.querySelector('h2').textContent,sd={section_name:sn,items:[]};
             s.querySelectorAll('.item').forEach(it=>{
@@ -329,6 +337,8 @@ async function submit(){
                 if(fs&&fs.value)cm=`Filter:${fs.value}. ${cm}`;
                 const ph=[];
                 it.querySelectorAll('.photos img').forEach(p=>ph.push(p.src));
+                totalPhotos += ph.length;
+                
                 if(cd!=='-'||cm.trim()||ph.length>0){
                     let ne='-',sfp='-',act='-',dmg='-';
                     if(cd==='N'||cd==='E')ne=cd;
@@ -343,23 +353,47 @@ async function submit(){
                         condition_action:act,
                         condition_damage:dmg,
                         comments:cm,
-                        photos:ph,
+                        photos:ph, // Keep photos for PDF generation
                         is_damage:cd==='D'||cd==='TD'||cd==='P'||cd==='!'
                     });
                 }
             });
             if(sd.items.length>0)data.sections.push(sd);
         });
-        const xl=genXL(data),pdf=await genPDF(data);
-        data.excel_file=xl;
-        data.pdf_file=pdf;
-        const r=await fetch(URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({body:data})});
+        
+        console.log(`Total photos to embed in PDF: ${totalPhotos}`);
+        
+        // Generate PDF with all photos embedded
+        const pdf=await genPDF(data);
+        
+        // Generate Excel (no photos)
+        const xl=genXL(data);
+        
+        // Create a clean copy WITHOUT photos for the JSON payload
+        const cleanData = JSON.parse(JSON.stringify(data));
+        cleanData.sections.forEach(s => {
+            s.items.forEach(it => {
+                it.photos = []; // Remove all photos from JSON payload
+                it.photo_count = totalPhotos; // Optional: track how many photos were in PDF
+            });
+        });
+        
+        // Attach the generated files
+        cleanData.excel_file = xl;
+        cleanData.pdf_file = pdf;
+        
+        const payloadSize = new Blob([JSON.stringify({body:cleanData})]).size;
+        const sizeMB = (payloadSize / 1024 / 1024).toFixed(2);
+        console.log(`Payload size (without photo data): ${sizeMB} MB`);
+        
+        const r=await fetch(URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({body:cleanData})});
         if(r.ok){
-            saveHist(data);
+            saveHist(cleanData);
             alert('✅ Report submitted successfully!');
             goHome();
         }else{
-            throw new Error('Server error');
+            const errorText = await r.text();
+            throw new Error(`Server error (${r.status}): ${errorText}`);
         }
     }catch(e){
         alert('❌ Submission failed: '+e.message);
@@ -440,18 +474,39 @@ async function genPDF(d){
 }
 
 function saveHist(d){
-    const h=JSON.parse(localStorage.getItem('inspections')||'[]');
-    h.unshift({...d,id:Date.now(),timestamp:new Date().toISOString()});
-    localStorage.setItem('inspections',JSON.stringify(h));
+    // History is now saved server-side via n8n workflow
+    // The workflow automatically saves to SharePoint/OneDrive after email is sent
+    console.log('History saved to server');
 }
 
-function loadHist(){
-    const h=JSON.parse(localStorage.getItem('inspections')||'[]'),c=document.getElementById('historyContainer');
+async function loadHist(){
+    const c=document.getElementById('historyContainer');
+    
+    if(USE_SERVER_HISTORY) {
+        // Load from server (SharePoint/OneDrive)
+        try {
+            c.innerHTML='<div class="history-empty"><p>Loading history...</p></div>';
+            const response = await fetch(HISTORY_URL);
+            if(!response.ok) throw new Error('Failed to load history');
+            const h = await response.json();
+            displayHistory(h, c);
+        } catch(e) {
+            console.error('Error loading history:', e);
+            c.innerHTML='<div class="history-empty"><p>Unable to load history</p><p>Please check your connection</p></div>';
+        }
+    } else {
+        // Fallback to localStorage
+        const h=JSON.parse(localStorage.getItem('inspections')||'[]');
+        displayHistory(h, c);
+    }
+}
+
+function displayHistory(h, container) {
     if(h.length===0){
-        c.innerHTML='<div class="history-empty"><p>No inspections yet</p><p>Start your first inspection above!</p></div>';
+        container.innerHTML='<div class="history-empty"><p>No inspections yet</p><p>Start your first inspection above!</p></div>';
         return;
     }
-    c.innerHTML=h.map(r=>`<div class="report-card"><h3>${r.property_address}</h3><p>Tenant: ${r.tenant_name}</p><p>Inspector: ${r.inspector_name}</p><p>Date: ${r.inspection_date} ${r.inspection_time}</p><div class="report-card-actions"><button class="resend-btn" onclick="resend(${r.id})">📧 Resend Report</button></div></div>`).join('');
+    container.innerHTML=h.map(r=>`<div class="report-card"><h3>${r.property_address}</h3><p>Tenant: ${r.tenant_name}</p><p>Inspector: ${r.inspector_name}</p><p>Date: ${r.inspection_date} ${r.inspection_time || ''}</p><div class="report-card-actions"><button class="resend-btn" onclick="resend(${r.id})">📧 Resend Report</button></div></div>`).join('');
 }
 
 async function resend(id) {
