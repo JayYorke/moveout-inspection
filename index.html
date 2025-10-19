@@ -437,43 +437,44 @@ function loadHist(){
 /* ... everything above unchanged ... */
 
 async function resend(id) {
-  const h = JSON.parse(localStorage.getItem('inspections') || '[]');
-  const r = h.find((x) => x.id === id);
-  if (!r) { alert('Report not found'); return; }
-
-  document.getElementById('overlay').style.display = 'block';
-  document.getElementById('loading').classList.remove('hidden');
-
-  try {
-    // shrink payload: remove raw photos from JSON (they're already embedded in the generated PDF)
-    if (Array.isArray(r.sections)) {
-      r.sections.forEach((s) => {
-        if (Array.isArray(s.items)) {
-          s.items.forEach((it) => { it.photos = []; });
+    const h = JSON.parse(localStorage.getItem('inspections') || '[]');
+    const r = h.find((x) => x.id === id);
+    if (!r) { alert('Report not found'); return; }
+    
+    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('loading').classList.remove('hidden');
+    
+    try {
+        // Create a clean copy to avoid mutating stored data
+        const cleanData = JSON.parse(JSON.stringify(r));
+        
+        // Remove photos to reduce payload size
+        if (Array.isArray(cleanData.sections)) {
+            cleanData.sections.forEach((s) => {
+                if (Array.isArray(s.items)) {
+                    s.items.forEach((it) => { 
+                        it.photos = []; 
+                    });
+                }
+            });
         }
-      });
+        
+        // Send using same format as submit() - wrapped in {body: data}
+        const res = await fetch(URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ body: cleanData })
+        });
+        
+        if (res.ok) {
+            alert('✅ Report resent successfully!');
+        } else {
+            throw new Error('Failed with HTTP ' + res.status);
+        }
+    } catch (e) {
+        alert('❌ Resend failed: ' + (e?.message || e));
+    } finally {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('loading').classList.add('hidden');
     }
-
-    // send as FormData (do NOT set headers)
-    const fd = new FormData();
-    fd.append('body', JSON.stringify(r));
-
-    const res = await fetch(URL, {
-      method: 'POST',
-      body: fd,
-    });
-
-    if (res.ok) {
-      alert('✅ Report resent successfully!');
-    } else {
-      throw new Error('Failed with HTTP ' + res.status);
-    }
-  } catch (e) {
-    alert('❌ Resend failed: ' + (e?.message || e));
-  } finally {
-    document.getElementById('overlay').style.display = 'none';
-    document.getElementById('loading').classList.add('hidden');
-  }
 }
-
-loadHist();
