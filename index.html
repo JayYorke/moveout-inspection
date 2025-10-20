@@ -9,7 +9,6 @@
     <meta name="theme-color" content="#007bff">
     <title>Move Out Inspection - AG Management</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding: 10px; background-color: #f5f5f5; max-width: 1200px; margin: 0 auto; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
@@ -169,9 +168,8 @@
 <script>
 const URL='https://n8n.335.rent/webhook/moveout-inspection';
 const HISTORY_URL='https://n8n.335.rent/webhook/moveout-inspection-history';
-const USE_SERVER_HISTORY = true; // Using SharePoint/OneDrive for shared history
 
-const items={'Bedroom 1':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 2':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 3':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 4':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 5':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bathroom 1':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 2':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 3':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 4':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Kitchen':['Cabinets/Drawers','Counter','Dishwasher','Faucet/Plumbing','Flooring/Baseboard','Light Fixture','Microwave','Oven','Range/Fan/Hood/Filter','Refrigerator','Sink/Disposal','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Living Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Dining Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Family Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Laundry':['Flooring/Baseboard','Light Fixture','Switch/Outlet','Wall/Ceiling','Other'],'Hallway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Hallway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Stairway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling','Handrail'],'Stairway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outfit','Wall/Ceiling','Handrail'],'Basement':['Door/Knob/Lock','Flooring/Baseboard','Light Fixture/Fan','Other','Smoke detector','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Entry':['Door/Knob/Lock','Doorbell','Flooring/Baseboard','Light Fixture/Fan','Other','Security/Screen Door','Switch/Outlet','Wall/Ceiling'],'Front Yard':['Building Exterior','Landscaping','Walkway/Driveway','Other'],'Back Yard':['Patio/Deck/Balcony','Landscaping','Fence','Light Fixture','Other'],'Side Yard':['Landscaping','Fence','Walkway','Other'],'Garage':['Door/Opener','Flooring','Light Fixture','Wall/Ceiling','Window/Lock','Other'],'Systems':['Furnace/Heating','Furnace Filter Size','Air Conditioning','Water Heater','Electrical Panel','Plumbing','Other'],'Other':[]};
+const items={'Bedroom 1':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 2':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 3':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 4':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bedroom 5':['Door/Knob/Lock','Closet/Door/Track/Shelving','Flooring/Baseboard','Light Fixture/Fan','Wall/Ceiling','Window Covering','Window/Lock/Screen','CO/Smoke Detector','Switch/Outlet'],'Bathroom 1':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 2':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 3':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Bathroom 4':['Cabinet/Counter/Shelving','Door/Knob/Lock','Exhaust Fan','Flooring/Baseboard','Light Fixture','Medicine Cabinet/Mirror','Plumbing/Drain','Shower Door/Rail/Curtain','Sink/Faucet','Switch/Outlet','Toilet','Toilet Paper Holder','Toilet Turns off appropriately upon flushing','Towel Rack','Tub/Shower','Wall/Ceiling','Window/Lock/Screen'],'Kitchen':['Cabinets/Drawers','Counter','Dishwasher','Faucet/Plumbing','Flooring/Baseboard','Light Fixture','Microwave','Oven','Range/Fan/Hood/Filter','Refrigerator','Sink/Disposal','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Living Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Dining Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Family Room':['Flooring/Baseboard','Light Fixture/Fan','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Laundry':['Flooring/Baseboard','Light Fixture','Switch/Outlet','Wall/Ceiling','Other'],'Hallway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Hallway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling'],'Stairway 1':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling','Handrail'],'Stairway 2':['Flooring/Baseboard','Light Fixture','Smoke/CO Detector','Switch/Outlet','Wall/Ceiling','Handrail'],'Basement':['Door/Knob/Lock','Flooring/Baseboard','Light Fixture/Fan','Other','Smoke detector','Switch/Outlet','Wall/Ceiling','Window Covering','Window/Lock/Screen'],'Entry':['Door/Knob/Lock','Doorbell','Flooring/Baseboard','Light Fixture/Fan','Other','Security/Screen Door','Switch/Outlet','Wall/Ceiling'],'Front Yard':['Building Exterior','Landscaping','Walkway/Driveway','Other'],'Back Yard':['Patio/Deck/Balcony','Landscaping','Fence','Light Fixture','Other'],'Side Yard':['Landscaping','Fence','Walkway','Other'],'Garage':['Door/Opener','Flooring','Light Fixture','Wall/Ceiling','Window/Lock','Other'],'Systems':['Furnace/Heating','Furnace Filter Size','Air Conditioning','Water Heater','Electrical Panel','Plumbing','Other'],'Other':[]};
 let tgt=null,str=null,zm=1,fl=false,track=null;
 
 function startNew(){document.getElementById('landingPage').style.display='none';document.getElementById('formPage').style.display='block';upd();gps();}
@@ -189,43 +187,21 @@ async function cam(id){
     tgt=id;
     const v=document.getElementById('cameraView'),vid=document.getElementById('video');
     try{
-        str=await navigator.mediaDevices.getUserMedia({
-            video:{
-                facingMode:'environment',
-                width:{ideal:1920},
-                height:{ideal:1080}
-            }
-        });
+        str=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}});
         vid.srcObject=str;
         track=str.getVideoTracks()[0];
         const caps=track.getCapabilities();
-        if(caps.torch){
-            document.getElementById('flashBtn').style.display='block';
-        }else{
-            document.getElementById('flashBtn').style.display='none';
-        }
+        if(caps.torch){document.getElementById('flashBtn').style.display='block';}else{document.getElementById('flashBtn').style.display='none';}
         v.style.display='flex';
-        zm=1;
-        fl=false;
+        zm=1;fl=false;
         document.getElementById('flashBtn').textContent='💡 Flash: OFF';
-    }catch(e){
-        alert('Camera access denied or unavailable');
-        console.error(e);
-    }
+    }catch(e){alert('Camera access denied or unavailable');console.error(e);}
 }
 
 function closeCam(){
     const v=document.getElementById('cameraView'),vid=document.getElementById('video');
-    if(str){
-        str.getTracks().forEach(t=>t.stop());
-        str=null;
-        track=null;
-    }
-    vid.srcObject=null;
-    v.style.display='none';
-    tgt=null;
-    zm=1;
-    fl=false;
+    if(str){str.getTracks().forEach(t=>t.stop());str=null;track=null;}
+    vid.srcObject=null;v.style.display='none';tgt=null;zm=1;fl=false;
 }
 
 function cap(){
@@ -234,14 +210,10 @@ function cap(){
     if(vid.readyState===vid.HAVE_ENOUGH_DATA){
         flash.classList.add('active');
         setTimeout(()=>flash.classList.remove('active'),100);
-        
-        // Resize for mobile - max 1200px width to reduce file size
-        const maxWidth = 1200;
-        const scale = Math.min(1, maxWidth / vid.videoWidth);
-        c.width = vid.videoWidth * scale;
-        c.height = vid.videoHeight * scale;
-        
-        ctx.drawImage(vid, 0, 0, c.width, c.height);
+        const maxWidth=1200;
+        const scale=Math.min(1,maxWidth/vid.videoWidth);
+        c.width=vid.videoWidth*scale;c.height=vid.videoHeight*scale;
+        ctx.drawImage(vid,0,0,c.width,c.height);
         c.toBlob(b=>{
             const r=new FileReader();
             r.onloadend=()=>{
@@ -249,71 +221,22 @@ function cap(){
                 const btn=document.getElementById('captureBtn');
                 btn.textContent='✅ Photo Captured!';
                 btn.style.background='#28a745';
-                setTimeout(()=>{
-                    btn.textContent='📷 Capture Photo';
-                    btn.style.background='#007bff';
-                },1000);
+                setTimeout(()=>{btn.textContent='📷 Capture Photo';btn.style.background='#007bff';},1000);
             };
             r.readAsDataURL(b);
-        },'image/jpeg',0.7); // Reduced quality from 0.9 to 0.7 for smaller file size
+        },'image/jpeg',0.7);
     }
 }
 
-function toggleZoom(){
-    if(!track)return;
-    const caps=track.getCapabilities();
-    if(caps.zoom){
-        zm=zm===1?2:1;
-        track.applyConstraints({advanced:[{zoom:zm}]});
-        document.getElementById('zoomBtn').textContent=`🔍 Zoom: ${zm}x`;
-    }
-}
+function toggleZoom(){if(!track)return;const caps=track.getCapabilities();if(caps.zoom){zm=zm===1?2:1;track.applyConstraints({advanced:[{zoom:zm}]});document.getElementById('zoomBtn').textContent=`🔍 Zoom: ${zm}x`;}}
+function toggleFlash(){if(!track)return;const caps=track.getCapabilities();if(caps.torch){fl=!fl;track.applyConstraints({advanced:[{torch:fl}]});document.getElementById('flashBtn').textContent=fl?'💡 Flash: ON':'💡 Flash: OFF';}}
+function addPh(id,d){const p=document.getElementById(`${id}-p`),pid=`p-${Date.now()}`,dv=document.createElement('div');dv.className='photo';dv.id=pid;dv.innerHTML=`<img src="${d}"><button onclick="remPh('${pid}')">×</button>`;p.appendChild(dv);}
+function remPh(id){if(confirm('Delete photo?'))document.getElementById(id).remove();}
 
-function toggleFlash(){
-    if(!track)return;
-    const caps=track.getCapabilities();
-    if(caps.torch){
-        fl=!fl;
-        track.applyConstraints({advanced:[{torch:fl}]});
-        document.getElementById('flashBtn').textContent=fl?'💡 Flash: ON':'💡 Flash: OFF';
-    }
-}
-
-function addPh(id,d){
-    const p=document.getElementById(`${id}-p`),pid=`p-${Date.now()}`,dv=document.createElement('div');
-    dv.className='photo';
-    dv.id=pid;
-    dv.innerHTML=`<img src="${d}"><button onclick="remPh('${pid}')">×</button>`;
-    p.appendChild(dv);
-}
-
-function remPh(id){
-    if(confirm('Delete photo?'))document.getElementById(id).remove();
-}
-
-document.getElementById('captureBtn').addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    cap();
-}, { passive: false });
-
-document.getElementById('closeCameraBtn').addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    closeCam();
-}, { passive: false });
-
-document.getElementById('zoomBtn').addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleZoom();
-}, { passive: false });
-
-document.getElementById('flashBtn').addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleFlash();
-}, { passive: false });
+document.getElementById('captureBtn').addEventListener('click',function(e){e.preventDefault();e.stopPropagation();cap();},{passive:false});
+document.getElementById('closeCameraBtn').addEventListener('click',function(e){e.preventDefault();e.stopPropagation();closeCam();},{passive:false});
+document.getElementById('zoomBtn').addEventListener('click',function(e){e.preventDefault();e.stopPropagation();toggleZoom();},{passive:false});
+document.getElementById('flashBtn').addEventListener('click',function(e){e.preventDefault();e.stopPropagation();toggleFlash();},{passive:false});
 
 async function submit(){
     const a=document.getElementById('addr').value,t=document.getElementById('tenant').value,i=document.getElementById('inspector').value;
@@ -325,7 +248,7 @@ async function submit(){
         const dt=document.getElementById('date').textContent,tm=document.getElementById('time').textContent,g=document.getElementById('gps').textContent,
         data={property_address:a,tenant_name:t,inspector_name:i,inspection_date:dt,inspection_time:tm,gps_location:g,sections:[]};
         
-        let totalPhotos = 0;
+        let totalPhotos=0;
         document.querySelectorAll('.section').forEach(s=>{
             const sn=s.querySelector('h2').textContent,sd={section_name:sn,items:[]};
             s.querySelectorAll('.item').forEach(it=>{
@@ -337,7 +260,7 @@ async function submit(){
                 if(fs&&fs.value)cm=`Filter:${fs.value}. ${cm}`;
                 const ph=[];
                 it.querySelectorAll('.photos img').forEach(p=>ph.push(p.src));
-                totalPhotos += ph.length;
+                totalPhotos+=ph.length;
                 
                 if(cd!=='-'||cm.trim()||ph.length>0){
                     let ne='-',sfp='-',act='-',dmg='-';
@@ -346,55 +269,30 @@ async function submit(){
                     else if(cd==='!')act=cd;
                     else if(cd==='D'||cd==='TD')dmg=cd;
                     sd.items.push({
-                        item_name:nm,
-                        condition:cd,
-                        condition_ne:ne,
-                        condition_sfp:sfp,
-                        condition_action:act,
-                        condition_damage:dmg,
-                        comments:cm,
-                        photos:ph, // Keep photos for PDF generation
-                        is_damage:cd==='D'||cd==='TD'||cd==='P'||cd==='!'
+                        item_name:nm,condition:cd,condition_ne:ne,condition_sfp:sfp,
+                        condition_action:act,condition_damage:dmg,comments:cm,
+                        photos:ph,is_damage:cd==='D'||cd==='TD'||cd==='P'||cd==='!'
                     });
                 }
             });
             if(sd.items.length>0)data.sections.push(sd);
         });
         
-        console.log(`Total photos to embed in PDF: ${totalPhotos}`);
+        console.log(`Sending ${totalPhotos} photos to n8n for OneDrive upload`);
         
-        // Generate PDF with all photos embedded
-        const pdf=await genPDF(data);
-        
-        // Generate Excel (no photos)
+        // Generate Excel only (no PDF - n8n will create it)
         const xl=genXL(data);
+        data.excel_file=xl;
         
-        // Create a clean copy WITHOUT photos for the JSON payload
-        const cleanData = JSON.parse(JSON.stringify(data));
-        cleanData.sections.forEach(s => {
-            s.items.forEach(it => {
-                it.photos = []; // Remove all photos from JSON payload
-                it.photo_count = totalPhotos; // Optional: track how many photos were in PDF
-            });
-        });
-        
-        // Attach the generated files
-        cleanData.excel_file = xl;
-        cleanData.pdf_file = pdf;
-        
-        const payloadSize = new Blob([JSON.stringify({body:cleanData})]).size;
-        const sizeMB = (payloadSize / 1024 / 1024).toFixed(2);
-        console.log(`Payload size (without photo data): ${sizeMB} MB`);
-        
-        const r=await fetch(URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({body:cleanData})});
-        if(r.ok){
-            saveHist(cleanData);
-            alert('✅ Report submitted successfully!');
-            goHome();
-        }else{
-            const errorText = await r.text();
+        const r=await fetch(URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({body:data})});
+        if(!r.ok){
+            const errorText=await r.text();
             throw new Error(`Server error (${r.status}): ${errorText}`);
         }
+        
+        alert(`✅ Report submitted successfully! ${totalPhotos} photos uploaded to OneDrive.`);
+        goHome();
+        
     }catch(e){
         alert('❌ Submission failed: '+e.message);
         console.error(e);
@@ -418,137 +316,21 @@ function genXL(d){
     return XLSX.write(wb,{bookType:'xlsx',type:'base64'});
 }
 
-async function genPDF(d){
-    const{jsPDF}=window.jspdf,pdf=new jsPDF(),
-    props=[`Property: ${d.property_address}`,`Tenant: ${d.tenant_name}`,`Inspector: ${d.inspector_name}`,`Date: ${d.inspection_date}`,`GPS: ${d.gps_location}`];
-    let y=20;
-    pdf.setFontSize(18);
-    pdf.text('Move Out Inspection Report',105,y,{align:'center'});
-    y+=10;
-    pdf.setFontSize(10);
-    pdf.text('AG Management - (248)335-7368',105,y,{align:'center'});
-    y+=15;
-    pdf.setFontSize(11);
-    props.forEach(p=>{pdf.text(p,20,y);y+=6;});
-    y+=10;
-    for(const s of d.sections){
-        if(y>250){pdf.addPage();y=20;}
-        pdf.setFontSize(14);
-        pdf.setFont(undefined,'bold');
-        pdf.text(s.section_name,20,y);
-        pdf.setFont(undefined,'normal');
-        y+=7;
-        for(const it of s.items){
-            if(y>240){pdf.addPage();y=20;}
-            pdf.setFontSize(11);
-            pdf.text(`• ${it.item_name}`,25,y);
-            y+=5;
-            if(it.condition!=='-'){
-                pdf.setFontSize(10);
-                pdf.text(`   Condition: ${it.condition}`,30,y);
-                y+=5;
-            }
-            if(it.comments.trim()){
-                pdf.setFontSize(9);
-                const l=pdf.splitTextToSize(`   ${it.comments}`,160);
-                pdf.text(l,30,y);
-                y+=l.length*4+2;
-            }
-            if(it.photos.length>0){
-                let x=30;
-                for(const p of it.photos){
-                    if(x>160){x=30;y+=40;}
-                    if(y>240){pdf.addPage();y=20;x=30;}
-                    try{
-                        pdf.addImage(p,'JPEG',x,y,35,35);
-                        x+=40;
-                    }catch(e){console.error('Image error',e);}
-                }
-                y+=40;
-            }
-            y+=3;
-        }
-        y+=5;
-    }
-    return pdf.output('datauristring').split(',')[1];
-}
-
-function saveHist(d){
-    // History is now saved server-side via n8n workflow
-    // The workflow automatically saves to SharePoint/OneDrive after email is sent
-    console.log('History saved to server');
-}
-
 async function loadHist(){
     const c=document.getElementById('historyContainer');
-    
-    if(USE_SERVER_HISTORY) {
-        // Load from server (SharePoint/OneDrive)
-        try {
-            c.innerHTML='<div class="history-empty"><p>Loading history...</p></div>';
-            const response = await fetch(HISTORY_URL);
-            if(!response.ok) throw new Error('Failed to load history');
-            const h = await response.json();
-            displayHistory(h, c);
-        } catch(e) {
-            console.error('Error loading history:', e);
-            c.innerHTML='<div class="history-empty"><p>Unable to load history</p><p>Please check your connection</p></div>';
+    try{
+        c.innerHTML='<div class="history-empty"><p>Loading history...</p></div>';
+        const response=await fetch(HISTORY_URL);
+        if(!response.ok)throw new Error('Failed to load history');
+        const h=await response.json();
+        if(h.length===0){
+            c.innerHTML='<div class="history-empty"><p>No inspections yet</p><p>Start your first inspection above!</p></div>';
+            return;
         }
-    } else {
-        // Fallback to localStorage
-        const h=JSON.parse(localStorage.getItem('inspections')||'[]');
-        displayHistory(h, c);
-    }
-}
-
-function displayHistory(h, container) {
-    if(h.length===0){
-        container.innerHTML='<div class="history-empty"><p>No inspections yet</p><p>Start your first inspection above!</p></div>';
-        return;
-    }
-    container.innerHTML=h.map(r=>`<div class="report-card"><h3>${r.property_address}</h3><p>Tenant: ${r.tenant_name}</p><p>Inspector: ${r.inspector_name}</p><p>Date: ${r.inspection_date} ${r.inspection_time || ''}</p><div class="report-card-actions"><button class="resend-btn" onclick="resend(${r.id})">📧 Resend Report</button></div></div>`).join('');
-}
-
-async function resend(id) {
-    const h = JSON.parse(localStorage.getItem('inspections') || '[]');
-    const r = h.find((x) => x.id === id);
-    if (!r) { alert('Report not found'); return; }
-    
-    document.getElementById('overlay').style.display = 'block';
-    document.getElementById('loading').classList.remove('hidden');
-    
-    try {
-        // Create a clean copy to avoid mutating stored data
-        const cleanData = JSON.parse(JSON.stringify(r));
-        
-        // Remove photos to reduce payload size
-        if (Array.isArray(cleanData.sections)) {
-            cleanData.sections.forEach((s) => {
-                if (Array.isArray(s.items)) {
-                    s.items.forEach((it) => { 
-                        it.photos = []; 
-                    });
-                }
-            });
-        }
-        
-        // Send using same format as submit() - wrapped in {body: data}
-        const res = await fetch(URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ body: cleanData })
-        });
-        
-        if (res.ok) {
-            alert('✅ Report resent successfully!');
-        } else {
-            throw new Error('Failed with HTTP ' + res.status);
-        }
-    } catch (e) {
-        alert('❌ Resend failed: ' + (e?.message || e));
-    } finally {
-        document.getElementById('overlay').style.display = 'none';
-        document.getElementById('loading').classList.add('hidden');
+        c.innerHTML=h.map(r=>`<div class="report-card"><h3>${r.property_address}</h3><p>Tenant: ${r.tenant_name}</p><p>Inspector: ${r.inspector_name}</p><p>Date: ${r.inspection_date} ${r.inspection_time||''}</p></div>`).join('');
+    }catch(e){
+        console.error('Error loading history:',e);
+        c.innerHTML='<div class="history-empty"><p>Unable to load history</p><p>Please check your connection</p></div>';
     }
 }
 
